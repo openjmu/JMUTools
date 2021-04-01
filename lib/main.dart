@@ -5,16 +5,33 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 import 'package:jmu_tools/exports/export.dart';
 
 import 'pages/splash_page.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
+    statusBarColor: Colors.transparent,
+  ));
+
+  await Future.wait(
+    <Future<void>>[
+      DeviceUtil.initDeviceInfo(),
+      PackageUtil.initPackageInfo(),
+      HttpUtil.initConfig(),
+    ],
+    eagerError: true,
+  );
+
   _customizeErrorWidget();
-  runApp(MyApp());
+  runApp(ToolsApp());
 }
 
-class MyApp extends StatelessWidget {
+class ToolsApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

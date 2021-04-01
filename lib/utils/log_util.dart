@@ -5,8 +5,8 @@
 import 'dart:developer' as _dev;
 
 import 'package:logging/logging.dart';
-
-import '../constants/constants.dart' show currentTime, currentTimeStamp;
+import 'package:jmu_tools/constants/instances.dart'
+    show currentTime, currentTimeStamp;
 
 class LogUtil {
   const LogUtil._();

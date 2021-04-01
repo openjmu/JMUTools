@@ -28,3 +28,7 @@ void showCenterErrorToast(String text) {
 void showTopToast(String text) {
   OKToast.showToast(text, position: OKToast.ToastPosition.top);
 }
+
+void dismissAllToast({bool showAnim = true}) {
+  OKToast.dismissAllToast(showAnim: showAnim);
+}

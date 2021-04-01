@@ -17,3 +17,17 @@ class Instances {
   static GlobalKey<ScaffoldState> mainPageScaffoldKey =
       GlobalKey<ScaffoldState>();
 }
+
+NavigatorState get navigatorState => Instances.navigatorKey.currentState!;
+
+BuildContext get currentContext => navigatorState.context;
+
+ThemeData get currentTheme => Theme.of(currentContext);
+
+Color get currentThemeColor => currentTheme.accentColor;
+
+bool get currentIsDark => currentTheme.brightness == Brightness.dark;
+
+DateTime get currentTime => DateTime.now();
+
+int get currentTimeStamp => currentTime.millisecondsSinceEpoch;

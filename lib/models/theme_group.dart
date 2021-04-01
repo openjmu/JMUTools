@@ -2,7 +2,9 @@
 /// [Author] Alex (https://github.com/AlexV525)
 /// [Date] 2020/8/21 16:29
 ///
-part of '../exports/models.dart';
+import 'package:flutter/material.dart';
+import 'package:jmu_tools/exports/constants.dart';
+import 'package:jmu_tools/exports/extensions.dart';
 
 const Color defaultLightColor = Color(0xffef5350);
 const Color defaultDarkColor = Color(0xffcb4644);
