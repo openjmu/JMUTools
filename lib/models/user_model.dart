@@ -12,79 +12,72 @@ part of 'data_model.dart';
 @JsonSerializable(fieldRename: FieldRename.snake)
 class UserModel extends DataModel {
   const UserModel({
-    required this.sid,
     required this.uid,
-    required this.name,
-    required this.signature,
-    required this.ticket,
-    required this.blowfish,
-    this.isTeacher = false,
-    required this.unitId,
-    required this.workId,
+    required this.username,
     required this.gender,
-    this.isFollowing = false,
+    required this.workId,
+    required this.signature,
+    required this.type,
     this.sysAvatar = false,
+    this.isFollowing = false,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) =>
       _$UserModelFromJson(json);
 
   UserModel copyWith({
-    String? sid,
-    String? ticket,
-    String? blowfish,
-    bool? isTeacher,
     String? uid,
-    int? unitId,
+    String? username,
     int? gender,
-    String? name,
-    String? signature,
     String? workId,
-    bool? isFollowing,
+    String? signature,
+    int? type,
     bool? sysAvatar,
+    bool? isFollowing,
   }) {
     return UserModel(
-      sid: sid ?? this.sid,
-      ticket: ticket ?? this.ticket,
-      blowfish: blowfish ?? this.blowfish,
-      isTeacher: isTeacher ?? this.isTeacher,
       uid: uid ?? this.uid,
-      unitId: unitId ?? this.unitId,
+      username: username ?? this.username,
       gender: gender ?? this.gender,
-      name: name ?? this.name,
-      signature: signature ?? this.signature,
       workId: workId ?? this.workId,
-      isFollowing: isFollowing ?? this.isFollowing,
+      signature: signature ?? this.signature,
+      type: type ?? this.type,
       sysAvatar: sysAvatar ?? this.sysAvatar,
+      isFollowing: isFollowing ?? this.isFollowing,
     );
   }
 
-  final String sid;
-  final String ticket;
-  final String blowfish;
-  @JsonKey(defaultValue: false)
-  final bool isTeacher;
+  @JsonKey(fromJson: _uidToString)
   final String uid;
-  final int unitId;
+  final String username;
   final int gender;
-  final String name;
+  @JsonKey(defaultValue: '0', name: 'workid')
+  final String workId;
   final String? signature;
-  final String? workId;
+  final int type;
+  @JsonKey(fromJson: _sysAvatarToBool, name: 'sysavatar')
+  final bool sysAvatar;
   @JsonKey(defaultValue: false)
   final bool isFollowing;
-  @JsonKey(defaultValue: false)
-  final bool sysAvatar;
 
   Map<String, dynamic> toJson() => _$UserModelToJson(this);
 
+  /// Methods for json fields convert.
+  static String _uidToString(int value) => value.toString();
+
+  static bool _sysAvatarToBool(int value) => value == 1;
+
   String get genderText => gender == 2 ? '女' : '男';
+
+  /// 是否为教师
+  bool get isTeacher => type == 1;
 
   /// 是否为研究生
   bool get isPostgraduate {
-    if (workId?.length != 12) {
+    if (workId.length != 12) {
       return false;
     } else {
-      final int? code = int.tryParse(workId!.substring(4, 6));
+      final int? code = int.tryParse(workId.substring(4, 6));
       if (code == null) {
         return false;
       }
@@ -94,10 +87,10 @@ class UserModel extends DataModel {
 
   /// 是否为继续教育学生
   bool get isContinuingEducation {
-    if (workId?.length != 12) {
+    if (workId.length != 12) {
       return false;
     } else {
-      final int? code = int.tryParse(workId!.substring(4, 6));
+      final int? code = int.tryParse(workId.substring(4, 6));
       if (code == null) {
         return false;
       }
@@ -107,10 +100,10 @@ class UserModel extends DataModel {
 
   /// 是否为诚毅学院学生
   bool get isCY {
-    if (workId?.length != 12) {
+    if (workId.length != 12) {
       return false;
     } else {
-      final int? code = int.tryParse(workId!.substring(4, 6));
+      final int? code = int.tryParse(workId.substring(4, 6));
       if (code == null) {
         return false;
       }

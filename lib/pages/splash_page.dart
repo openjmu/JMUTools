@@ -5,8 +5,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:jmu_tools/exports/constants.dart';
-import 'package:jmu_tools/exports/third_party.dart';
+import 'package:jmu_tools/exports/export.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({Key? key}) : super(key: key);
@@ -29,12 +28,17 @@ class _SplashPageState extends State<SplashPage> {
   }
 
   Widget get logo {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 30.w),
-      child: SvgPicture.asset(
-        R.ASSETS_OPENJMU_LOGO_TEXT_SVG,
-        width: Screens.width / 3,
-        color: currentThemeColor,
+    return Tapper(
+      onTap: () {
+        UserAPI.login('201521033021', 'DoMyOwn525');
+      },
+      child: Padding(
+        padding: EdgeInsets.symmetric(vertical: 30.w),
+        child: SvgPicture.asset(
+          R.ASSETS_OPENJMU_LOGO_TEXT_SVG,
+          width: Screens.width / 3,
+          color: currentThemeColor,
+        ),
       ),
     );
   }

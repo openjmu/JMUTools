@@ -6,10 +6,13 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:oktoast/oktoast.dart' show OKToast, ToastPosition;
 
 import 'package:jmu_tools/exports/export.dart';
 
 import 'pages/splash_page.dart';
+
+final ThemeData theme = ThemeData(primarySwatch: defaultLightColor.swatch);
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,15 +37,26 @@ Future<void> main() async {
 class ToolsApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'JMU Tools',
-      theme: ThemeData(primarySwatch: defaultLightColor.swatch),
-      navigatorKey: Instances.navigatorKey,
-      navigatorObservers: <NavigatorObserver>[Instances.routeObserver],
-      home: const SplashPage(),
-      builder: (BuildContext c, Widget? w) => RepaintBoundary(
-        key: Instances.appRepaintBoundaryKey,
-        child: w!,
+    return Theme(
+      data: theme,
+      child: OKToast(
+        position: ToastPosition.bottom,
+        textStyle: const TextStyle(fontSize: 14),
+        textPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
+        child: MaterialApp(
+          title: 'JMU Tools',
+          theme: theme,
+          navigatorKey: Instances.navigatorKey,
+          navigatorObservers: <NavigatorObserver>[Instances.routeObserver],
+          home: const SplashPage(),
+          builder: (BuildContext c, Widget? w) => RepaintBoundary(
+            key: Instances.appRepaintBoundaryKey,
+            child: w!,
+          ),
+        ),
       ),
     );
   }

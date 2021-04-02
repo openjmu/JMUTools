@@ -21,7 +21,8 @@ class Constants {
   static const String unitCode = 'jmu';
   static const int unitId = 55;
 
-  static Map<String, dynamic> get loginClientInfo => <String, dynamic>{
+  /// 通用客户端信息构造
+  static Map<String, dynamic> get _loginClientInfo => <String, dynamic>{
         'appid': appId,
         if (Platform.isIOS) 'packetid': '',
         'platform': Platform.isIOS ? 40 : 30,
@@ -32,6 +33,7 @@ class Constants {
         'sysver': Platform.isIOS ? '12.2' : '9.0',
       };
 
+  /// 通用登录参数构造
   static Map<String, dynamic> loginParams({
     required String blowfish,
     String? username,
@@ -47,7 +49,7 @@ class Constants {
       if (password != null) 'encrypt': 1,
       if (username != null) 'unitid': unitId,
       if (username != null) 'unitcode': 'jmu',
-      'clientinfo': jsonEncode(loginClientInfo),
+      'clientinfo': jsonEncode(_loginClientInfo),
     };
   }
 }

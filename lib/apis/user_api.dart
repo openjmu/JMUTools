@@ -15,6 +15,39 @@ class UserAPI {
 
   static UserModel get user => notifier.value!;
 
+  static LoginModel? loginModel;
+
+  static Future<bool> login(String username, String password) async {
+    final String blowfish = const Uuid().v4();
+    final Map<String, dynamic> params = Constants.loginParams(
+      username: username,
+      password: password,
+      blowfish: blowfish,
+    );
+    try {
+      final LoginModel loginData = await HttpUtil.fetchModel(
+        FetchType.post,
+        url: API.login,
+        body: params,
+        useTokenDio: true,
+      );
+      loginModel = loginData;
+      await HttpUtil.updateDomainsCookies(API.jmuHosts);
+      final UserModel user = await HttpUtil.fetchModel(
+        FetchType.get,
+        url: API.userInfo,
+        queryParameters: <String, String>{'uid': loginData.uid.toString()},
+      );
+      notifier.value = user;
+      showToast('登录成功');
+      HttpUtil.initializeWebViewCookie();
+      return true;
+    } catch (e) {
+      showErrorToast('登录失败 ($e)');
+      return false;
+    }
+  }
+
   static Future<bool> getTicket() async {
     return false;
     // try {

@@ -10,6 +10,8 @@ part 'data_model.d.dart';
 
 part 'data_model.g.dart';
 
+part 'login_model.dart';
+
 part 'user_model.dart';
 
 abstract class DataModel extends Equatable {

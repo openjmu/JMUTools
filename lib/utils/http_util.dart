@@ -48,6 +48,8 @@ class HttpUtil {
   static bool isLogEnabled = true;
 
   static Future<void> initConfig() async {
+    await initCookieManagement();
+
     (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
         _clientCreate;
     (tokenDio.httpClientAdapter as DefaultHttpClientAdapter)
@@ -91,6 +93,7 @@ class HttpUtil {
     dynamic? body,
     Map<String, dynamic>? headers,
     ResponseType responseType = ResponseType.json,
+    bool useTokenDio = false,
   }) async {
     final Response<T> response = await _getResponse(
       fetchType,
@@ -110,6 +113,7 @@ class HttpUtil {
     dynamic? body,
     Map<String, dynamic>? headers,
     ResponseType responseType = ResponseType.json,
+    bool useTokenDio = false,
   }) async {
     final Response<Map<String, dynamic>> response = await _getResponse(
       fetchType,
@@ -135,6 +139,7 @@ class HttpUtil {
     dynamic? body,
     Map<String, dynamic>? headers,
     ResponseType responseType = ResponseType.json,
+    bool useTokenDio = false,
   }) async {
     final Response<List<Map<dynamic, dynamic>>> response = await _getResponse(
       fetchType,
@@ -241,6 +246,7 @@ class HttpUtil {
     dynamic? body,
     Map<String, dynamic>? headers,
     ResponseType responseType = ResponseType.json,
+    bool useTokenDio = false,
   }) async {
     Response<T> response;
 
@@ -262,9 +268,11 @@ class HttpUtil {
       LogUtil.d('Raw request body: $body');
     }
 
+    final Dio _dio = useTokenDio ? tokenDio : dio;
+
     switch (fetchType) {
       case FetchType.head:
-        response = await dio.head(
+        response = await _dio.head(
           replacedUri.toString(),
           options: Options(
             followRedirects: true,
@@ -275,7 +283,7 @@ class HttpUtil {
         );
         break;
       case FetchType.get:
-        response = await dio.get(
+        response = await _dio.get(
           replacedUri.toString(),
           options: Options(
             followRedirects: true,
@@ -286,7 +294,7 @@ class HttpUtil {
         );
         break;
       case FetchType.post:
-        response = await dio.post(
+        response = await _dio.post(
           replacedUri.toString(),
           data: body,
           options: Options(
@@ -298,7 +306,7 @@ class HttpUtil {
         );
         break;
       case FetchType.put:
-        response = await dio.put(
+        response = await _dio.put(
           replacedUri.toString(),
           data: body,
           options: Options(
@@ -310,7 +318,7 @@ class HttpUtil {
         );
         break;
       case FetchType.patch:
-        response = await dio.patch(
+        response = await _dio.patch(
           replacedUri.toString(),
           data: body,
           options: Options(
@@ -322,7 +330,7 @@ class HttpUtil {
         );
         break;
       case FetchType.delete:
-        response = await dio.delete(
+        response = await _dio.delete(
           replacedUri.toString(),
           data: body,
           options: Options(
@@ -336,10 +344,12 @@ class HttpUtil {
     }
     if (isLogEnabled) {
       LogUtil.d(
-        'Got response from: ${dio.options.baseUrl}$replacedUri '
+        'Got response from: ${_dio.options.baseUrl}$replacedUri '
         '${response.statusCode}',
       );
-      LogUtil.d('Raw response body: ${response.data}');
+      if (response.data != null && response.data != '') {
+        LogUtil.d('Raw response body: ${response.data}');
+      }
     }
     return response;
   }
@@ -352,9 +362,11 @@ class HttpUtil {
       ..clear();
 
     if (await UserAPI.getTicket()) {
-      LogUtil.d('Ticket updated success with new ticket: ${UserAPI.user.sid}');
+      LogUtil.d(
+        'Ticket updated success with new ticket: ${UserAPI.loginModel?.sid}',
+      );
     } else {
-      LogUtil.e('Ticket updated error: ${UserAPI.user.sid}');
+      LogUtil.e('Ticket updated error: ${UserAPI.loginModel?.sid}');
     }
     // Release lock.
     dio.unlock();
@@ -378,8 +390,7 @@ class HttpUtil {
     List<String> urls, [
     List<Cookie>? cookies,
   ]) async {
-    final List<Cookie> _cookies =
-        cookies ?? _buildPHPSESSIDCookies(UserAPI.user.sid);
+    final List<Cookie> _cookies = cookies ?? _buildCookies();
     for (final String url in urls) {
       final String httpUrl = url.replaceAll(
         RegExp(r'http(s)?://'),
@@ -400,9 +411,57 @@ class HttpUtil {
     }
   }
 
-  static List<Cookie> _buildPHPSESSIDCookies(String? sid) => <Cookie>[
-        if (sid != null) Cookie('PHPSESSID', sid),
-        if (sid != null) Cookie('OAPSID', sid),
+  /// Initialize WebView's cookie with 'iPlanetDirectoryPro'.
+  /// 启动时通过 Session 初始化 WebView 的 Cookie
+  static Future<bool> initializeWebViewCookie() async {
+    final String url = 'http://sso.jmu.edu.cn/imapps/2190'
+        '?sid=${UserAPI.loginModel!.sid}';
+    try {
+      await HttpUtil.fetch(FetchType.head, url: url);
+      LogUtil.d('Cookie response did not return 302.');
+      return false;
+    } on DioError catch (dioError) {
+      try {
+        if (dioError.response?.statusCode == HttpStatus.movedTemporarily) {
+          final List<Cookie> mainSiteCookies = await cookieJar.loadForRequest(
+            Uri.parse('http://www.jmu.edu.cn/'),
+          );
+          for (final Cookie cookie in mainSiteCookies) {
+            webViewCookieManager.setCookie(
+              url: Uri.parse('${cookie.domain}${cookie.path}'),
+              name: cookie.name,
+              value: cookie.value,
+              domain: cookie.domain,
+              path: cookie.path ?? '/',
+              expiresDate: cookie.expires?.millisecondsSinceEpoch,
+              isSecure: cookie.secure,
+              maxAge: cookie.maxAge,
+            );
+          }
+          LogUtil.d('Successfully initialize WebView\'s Cookie.');
+          return true;
+        } else {
+          LogUtil.e(
+            'Error when initializing WebView\'s Cookie: $dioError',
+            withStackTrace: false,
+          );
+          return false;
+        }
+      } catch (e) {
+        LogUtil.e('Error when handling cookie response: $e');
+        return false;
+      }
+    } catch (e) {
+      LogUtil.e('Error when handling cookie response: $e');
+      return false;
+    }
+  }
+
+  static List<Cookie> _buildCookies() => <Cookie>[
+        if (UserAPI.loginModel?.sid != null)
+          Cookie('PHPSESSID', UserAPI.loginModel!.sid)..httpOnly = false,
+        if (UserAPI.loginModel?.sid != null)
+          Cookie('OAPSID', UserAPI.loginModel!.sid)..httpOnly = false,
       ];
 
   static dynamic Function(HttpClient client) get _clientCreate {

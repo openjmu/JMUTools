@@ -6,34 +6,49 @@ part of 'data_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+LoginModel _$LoginModelFromJson(Map<String, dynamic> json) {
+  return LoginModel(
+    sid: json['sid'] as String,
+    ticket: json['ticket'] as String,
+    uid: json['uid'] as int,
+    unitid: json['unitid'] as int,
+    type: json['type'] as int,
+    bindUapAccount: json['bind_uap_account'] as String,
+    pwdtime: json['pwdtime'],
+  );
+}
+
+Map<String, dynamic> _$LoginModelToJson(LoginModel instance) =>
+    <String, dynamic>{
+      'sid': instance.sid,
+      'ticket': instance.ticket,
+      'uid': instance.uid,
+      'unitid': instance.unitid,
+      'type': instance.type,
+      'bind_uap_account': instance.bindUapAccount,
+      'pwdtime': instance.pwdtime,
+    };
+
 UserModel _$UserModelFromJson(Map<String, dynamic> json) {
   return UserModel(
-    sid: json['sid'] as String,
-    uid: json['uid'] as String,
-    name: json['name'] as String,
-    signature: json['signature'] as String?,
-    ticket: json['ticket'] as String,
-    blowfish: json['blowfish'] as String,
-    isTeacher: json['is_teacher'] as bool? ?? false,
-    unitId: json['unit_id'] as int,
-    workId: json['work_id'] as String?,
+    uid: UserModel._uidToString(json['uid'] as int),
+    username: json['username'] as String,
     gender: json['gender'] as int,
+    workId: json['workid'] as String? ?? '0',
+    signature: json['signature'] as String?,
+    type: json['type'] as int,
+    sysAvatar: UserModel._sysAvatarToBool(json['sysavatar'] as int),
     isFollowing: json['is_following'] as bool? ?? false,
-    sysAvatar: json['sys_avatar'] as bool? ?? false,
   );
 }
 
 Map<String, dynamic> _$UserModelToJson(UserModel instance) => <String, dynamic>{
-      'sid': instance.sid,
-      'ticket': instance.ticket,
-      'blowfish': instance.blowfish,
-      'is_teacher': instance.isTeacher,
       'uid': instance.uid,
-      'unit_id': instance.unitId,
+      'username': instance.username,
       'gender': instance.gender,
-      'name': instance.name,
+      'workid': instance.workId,
       'signature': instance.signature,
-      'work_id': instance.workId,
+      'type': instance.type,
+      'sysavatar': instance.sysAvatar,
       'is_following': instance.isFollowing,
-      'sys_avatar': instance.sysAvatar,
     };
