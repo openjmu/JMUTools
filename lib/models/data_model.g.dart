@@ -91,33 +91,36 @@ class LoginModelAdapter extends TypeAdapter<LoginModel> {
     };
     return LoginModel(
       sid: fields[0] as String,
-      ticket: fields[1] as String,
-      uid: fields[2] as int,
-      unitid: fields[3] as int,
-      type: fields[4] as int,
-      bindUapAccount: fields[5] as String,
-      pwdtime: fields[6] as Object?,
+      uid: fields[3] as int,
+      unitId: fields[4] as int,
+      type: fields[5] as int,
+      bindUapAccount: fields[6] as String,
+      ticket: fields[1] as String?,
+      blowfish: fields[2] as String?,
+      pwdTime: fields[7] as Object?,
     );
   }
 
   @override
   void write(BinaryWriter writer, LoginModel obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.sid)
       ..writeByte(1)
       ..write(obj.ticket)
       ..writeByte(2)
-      ..write(obj.uid)
+      ..write(obj.blowfish)
       ..writeByte(3)
-      ..write(obj.unitid)
+      ..write(obj.uid)
       ..writeByte(4)
-      ..write(obj.type)
+      ..write(obj.unitId)
       ..writeByte(5)
-      ..write(obj.bindUapAccount)
+      ..write(obj.type)
       ..writeByte(6)
-      ..write(obj.pwdtime);
+      ..write(obj.bindUapAccount)
+      ..writeByte(7)
+      ..write(obj.pwdTime);
   }
 
   @override
@@ -236,12 +239,13 @@ class WebAppModelAdapter extends TypeAdapter<WebAppModel> {
 LoginModel _$LoginModelFromJson(Map<String, dynamic> json) {
   return LoginModel(
     sid: json['sid'] as String,
-    ticket: json['ticket'] as String,
     uid: json['uid'] as int,
-    unitid: json['unitid'] as int,
+    unitId: json['unitid'] as int,
     type: json['type'] as int,
     bindUapAccount: json['bind_uap_account'] as String,
-    pwdtime: json['pwdtime'],
+    ticket: json['ticket'] as String?,
+    blowfish: json['blowfish'] as String?,
+    pwdTime: json['pwdtime'],
   );
 }
 
@@ -249,11 +253,12 @@ Map<String, dynamic> _$LoginModelToJson(LoginModel instance) =>
     <String, dynamic>{
       'sid': instance.sid,
       'ticket': instance.ticket,
+      'blowfish': instance.blowfish,
       'uid': instance.uid,
-      'unitid': instance.unitid,
+      'unitid': instance.unitId,
       'type': instance.type,
       'bind_uap_account': instance.bindUapAccount,
-      'pwdtime': instance.pwdtime,
+      'pwdtime': instance.pwdTime,
     };
 
 ScoreModel _$ScoreModelFromJson(Map<String, dynamic> json) {

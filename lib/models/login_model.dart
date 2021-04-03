@@ -9,12 +9,13 @@ part of 'data_model.dart';
 class LoginModel extends DataModel {
   const LoginModel({
     required this.sid,
-    required this.ticket,
     required this.uid,
-    required this.unitid,
+    required this.unitId,
     required this.type,
     required this.bindUapAccount,
-    this.pwdtime,
+    this.ticket,
+    this.blowfish,
+    this.pwdTime,
   });
 
   factory LoginModel.fromJson(Map<String, dynamic> json) =>
@@ -23,22 +24,69 @@ class LoginModel extends DataModel {
   @HiveField(0)
   final String sid;
   @HiveField(1)
-  final String ticket;
+  final String? ticket;
   @HiveField(2)
-  final int uid;
+  final String? blowfish;
   @HiveField(3)
-  final int unitid;
+  final int uid;
+  @JsonKey(name: 'unitid')
   @HiveField(4)
-  final int type;
+  final int unitId;
   @HiveField(5)
-  final String bindUapAccount;
+  final int type;
   @HiveField(6)
-  final Object? pwdtime;
+  final String bindUapAccount;
+  @JsonKey(name: 'pwdtime')
+  @HiveField(7)
+  final Object? pwdTime;
 
   @override
-  List<Object?> get props =>
-      <Object?>[sid, ticket, uid, unitid, type, bindUapAccount, pwdtime];
+  List<Object?> get props => <Object?>[
+        sid,
+        ticket,
+        blowfish,
+        uid,
+        unitId,
+        type,
+        bindUapAccount,
+        pwdTime,
+      ];
 
   @override
   Map<String, dynamic> toJson() => _$LoginModelToJson(this);
+
+  LoginModel copyWith({
+    String? sid,
+    String? ticket,
+    String? blowfish,
+    int? uid,
+    int? unitId,
+    int? type,
+    String? bindUapAccount,
+    Object? pwdTime,
+  }) {
+    return LoginModel(
+      sid: sid ?? this.sid,
+      ticket: ticket ?? this.ticket,
+      blowfish: blowfish ?? this.blowfish,
+      uid: uid ?? this.uid,
+      unitId: unitId ?? this.unitId,
+      type: type ?? this.type,
+      bindUapAccount: bindUapAccount ?? this.bindUapAccount,
+      pwdTime: pwdTime ?? this.pwdTime,
+    );
+  }
+
+  LoginModel merge(LoginModel other) {
+    return LoginModel(
+      sid: other.sid,
+      ticket: other.ticket ?? ticket,
+      blowfish: other.blowfish ?? blowfish,
+      uid: other.uid,
+      unitId: other.unitId,
+      type: other.type,
+      bindUapAccount: other.bindUapAccount,
+      pwdTime: other.pwdTime ?? pwdTime,
+    );
+  }
 }

@@ -25,9 +25,9 @@ Future<void> main() async {
   ));
 
   await Hive.initFlutter();
+  await Boxes.openBoxes();
   await Future.wait(
     <Future<void>>[
-      Boxes.openBoxes(),
       DeviceUtil.initDeviceInfo(),
       PackageUtil.initPackageInfo(),
       HttpUtil.initConfig(),
@@ -96,7 +96,6 @@ class ToolsAppState extends State<ToolsApp> with WidgetsBindingObserver {
               ),
               localizationsDelegates: localizationsDelegates,
               supportedLocales: supportedLocales,
-
             ),
           ),
         ),

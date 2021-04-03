@@ -4,6 +4,8 @@
 ///
 import 'package:flutter/material.dart';
 
+import 'package:jmu_tools/exports/export.dart';
+
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
 
@@ -14,6 +16,25 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            ThemeTextButton(
+              text: 'Hi there',
+              onPressed: () => UserAPI.getTicket(),
+            ),
+            ThemeTextButton(
+              text: 'clearBoxes',
+              onPressed: () => Boxes.clearAllBoxes(context),
+            ),
+          ],
+        ),
+        // child: Text(
+        //   UserAPI.user.toString(),
+        // ),
+      ),
+    );
   }
 }

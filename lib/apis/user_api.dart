@@ -49,7 +49,7 @@ class UserAPI {
         body: params,
         useTokenDio: true,
       );
-      loginModel = loginData;
+      loginModel = loginData.copyWith(blowfish: blowfish);
       await HttpUtil.updateDomainsCookies(API.jmuHosts);
       final UserModel user = await HttpUtil.fetchModel(
         FetchType.get,
@@ -57,9 +57,11 @@ class UserAPI {
         queryParameters: <String, String>{'uid': loginData.uid.toString()},
       );
       notifier.value = user;
-      showToast('登录成功');
-      HttpUtil.initializeWebViewCookie();
+      // 存储 blowfish 和学工号
       SettingsUtil.setUserWorkId(username);
+      // 根据信息初始化 WebView 的 Cookie
+      HttpUtil.initializeWebViewCookie();
+      showToast('登录成功');
       return true;
     } catch (e) {
       showErrorToast('登录失败 ($e)');
@@ -68,29 +70,25 @@ class UserAPI {
   }
 
   static Future<bool> getTicket() async {
-    return false;
-    // try {
-    //   LogUtil.d('Fetch new ticket with: ${_settingsBox.get(spTicket)}');
-    //   final Map<String, dynamic> params = Constants.loginParams(
-    //     blowfish: _settingsBox.get(spBlowfish) as String,
-    //     ticket: _settingsBox.get(spTicket) as String,
-    //   );
-    //   final DateTime _start = currentTime;
-    //   final Map<String, dynamic> response =
-    //       (await NetUtils.tokenDio.post<Map<String, dynamic>>(
-    //         API.loginTicket,
-    //         data: params,
-    //       ))
-    //           .data;
-    //   final DateTime _end = currentTime;
-    //   LogUtil.d('Done request new ticket in: ${_end.difference(_start)}');
-    //   updateSid(response); // Using 99.
-    //   await NetUtils.updateDomainsCookies(API.ndHosts);
-    //   await getUserInfo();
-    //   return true;
-    // } catch (e) {
-    //   LogUtil.e('Error when getting ticket: $e');
-    //   return false;
-    // }
+    if (_loginModel == null) {
+      LogUtil.e('Ticket and blowfish does not exist.');
+      return false;
+    }
+    final String ticket = _loginModel!.ticket!;
+    final String blowfish = _loginModel!.blowfish!;
+    try {
+      LogUtil.d('Fetch new ticket with: $ticket');
+      final LoginModel res = await HttpUtil.fetchModel(
+        FetchType.post,
+        url: API.loginTicket,
+        body: Constants.loginParams(blowfish: blowfish, ticket: ticket),
+      );
+      loginModel = _loginModel!.merge(res);
+      await HttpUtil.updateDomainsCookies(API.jmuHosts);
+      return true;
+    } catch (e) {
+      LogUtil.e('Error when getting ticket: $e');
+      return false;
+    }
   }
 }

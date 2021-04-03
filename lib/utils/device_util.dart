@@ -5,8 +5,10 @@
 import 'dart:io';
 
 import 'package:device_info/device_info.dart';
-import 'package:jmu_tools/utils/log_util.dart';
 import 'package:uuid/uuid.dart';
+
+import 'log_util.dart';
+import 'settings_util.dart';
 
 class DeviceUtil {
   const DeviceUtil._();
@@ -20,13 +22,13 @@ class DeviceUtil {
 
   static Future<void> initDeviceInfo() {
     return Future.wait(<Future<void>>[
-      getModel(),
+      initModel(),
       // getDevicePushToken(),
-      getDeviceUuid(),
+      initDeviceUuid(),
     ]);
   }
 
-  static Future<void> getModel() async {
+  static Future<void> initModel() async {
     if (Platform.isAndroid) {
       deviceInfo = await _deviceInfoPlugin.androidInfo;
       final AndroidDeviceInfo androidInfo = deviceInfo as AndroidDeviceInfo;
@@ -62,19 +64,17 @@ class DeviceUtil {
     // }
   }
 
-  static Future<void> getDeviceUuid() async {
-    // if (HiveFieldUtils.getDeviceUuid() != null) {
-    //   deviceUUID = StorageUtil.getDeviceUUID();
-    // } else {
-    //   if (Platform.isIOS) {
-    //     deviceUUID = (deviceInfo as IosDeviceInfo).identifierForVendor;
-    //   } else {
-    //     final String uuid = const Uuid().v4();
-    //     deviceUUID = uuid;
-    //     await StorageUtil.setDeviceUuid(uuid);
-    //   }
-    // }
-    deviceUUID = const Uuid().v4();
+  static Future<void> initDeviceUuid() async {
+    if (SettingsUtil.getDeviceUUID() != null) {
+      deviceUUID = SettingsUtil.getDeviceUUID()!;
+    } else {
+      if (Platform.isIOS) {
+        deviceUUID = (deviceInfo as IosDeviceInfo).identifierForVendor;
+      } else {
+        deviceUUID = const Uuid().v4();
+      }
+    }
     LogUtil.d('deviceUuid: $deviceUUID');
+    await SettingsUtil.setDeviceUUID(deviceUUID);
   }
 }
