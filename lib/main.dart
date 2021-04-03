@@ -6,11 +6,14 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:oktoast/oktoast.dart' show OKToast, ToastPosition;
 
 import 'package:jmu_tools/exports/export.dart';
 
-import 'pages/splash_page.dart';
+import 'pages/login_page.dart';
+import 'pages/main_page.dart';
 
 final ThemeData theme = ThemeData(primarySwatch: defaultLightColor.swatch);
 
@@ -21,8 +24,10 @@ Future<void> main() async {
     statusBarColor: Colors.transparent,
   ));
 
+  await Hive.initFlutter();
   await Future.wait(
     <Future<void>>[
+      Boxes.openBoxes(),
       DeviceUtil.initDeviceInfo(),
       PackageUtil.initPackageInfo(),
       HttpUtil.initConfig(),
@@ -30,45 +35,74 @@ Future<void> main() async {
     eagerError: true,
   );
 
+  UserAPI.recoverLoginInfo();
   _customizeErrorWidget();
-  runApp(ToolsApp());
+  runApp(const ToolsApp());
 }
 
-class ToolsApp extends StatelessWidget {
+class ToolsApp extends StatefulWidget {
+  const ToolsApp({Key? key}) : super(key: key);
+
+  @override
+  ToolsAppState createState() => ToolsAppState();
+}
+
+class ToolsAppState extends State<ToolsApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance!.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance!.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    LogUtil.d('AppLifecycleState change to: ${state.toString()}');
+    Instances.appLifeCycleState = state;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Theme(
-      data: theme,
-      child: OKToast(
-        position: ToastPosition.bottom,
-        textStyle: const TextStyle(fontSize: 14),
-        textPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 12,
-        ),
-        child: MaterialApp(
-          title: 'JMU Tools',
-          theme: theme,
-          navigatorKey: Instances.navigatorKey,
-          navigatorObservers: <NavigatorObserver>[Instances.routeObserver],
-          home: const SplashPage(),
-          builder: (BuildContext c, Widget? w) => RepaintBoundary(
-            key: Instances.appRepaintBoundaryKey,
-            child: w!,
+    return MultiProvider(
+      providers: globalProviders,
+      builder: (_, __) => Selector<ThemesProvider, bool>(
+        selector: (_, ThemesProvider p) => p.dark,
+        builder: (BuildContext ctx, bool isDark, __) => Theme(
+          data: isDark
+              ? ctx.read<ThemesProvider>().darkTheme
+              : ctx.read<ThemesProvider>().lightTheme,
+          child: OKToast(
+            position: ToastPosition.bottom,
+            textStyle: const TextStyle(fontSize: 14),
+            textPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
+            child: MaterialApp(
+              key: Instances.appKey,
+              title: 'JMU Tools',
+              theme: theme,
+              navigatorKey: Instances.navigatorKey,
+              navigatorObservers: <NavigatorObserver>[Instances.routeObserver],
+              home: UserAPI.isLogin ? const MainPage() : const LoginPage(),
+              builder: (BuildContext c, Widget? w) => RepaintBoundary(
+                key: Instances.appRepaintBoundaryKey,
+                child: w!,
+              ),
+              localizationsDelegates: localizationsDelegates,
+              supportedLocales: supportedLocales,
+
+            ),
           ),
         ),
       ),
     );
   }
-}
-
-void _rebuildAllChildren(BuildContext context) {
-  void rebuild(Element el) {
-    el.markNeedsBuild();
-    el.visitChildren(rebuild);
-  }
-
-  (context as Element).visitChildren(rebuild);
 }
 
 void _customizeErrorWidget() {

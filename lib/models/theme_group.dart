@@ -3,13 +3,19 @@
 /// [Date] 2020/8/21 16:29
 ///
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import 'package:jmu_tools/exports/constants.dart';
 import 'package:jmu_tools/exports/extensions.dart';
+import 'package:jmu_tools/exports/providers.dart';
 
 const Color defaultLightColor = Color(0xffef5350);
 const Color defaultDarkColor = Color(0xffcb4644);
 
 const ThemeGroup defaultThemeGroup = ThemeGroup();
+
+ThemeGroup get currentThemeGroup =>
+    currentContext.read<ThemesProvider>().currentThemeGroup;
 
 class ThemeGroup {
   const ThemeGroup({
@@ -55,8 +61,7 @@ class ThemeGroup {
 
 Color adaptiveButtonColor([Color? color]) {
   if (currentIsDark) {
-    return defaultThemeGroup.darkButtonTextColor;
-  } else {
-    return color ?? defaultThemeGroup.lightButtonTextColor;
+    return currentThemeGroup.darkButtonTextColor;
   }
+  return color ?? currentThemeGroup.lightButtonTextColor;
 }

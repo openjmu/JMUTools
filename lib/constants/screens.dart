@@ -41,25 +41,3 @@ class Screens {
     SystemChrome.setSystemUIOverlayStyle(style);
   }
 }
-
-/// Screen capability method.
-double suSetSp(double size, {double scale = 1}) =>
-    _sizeCapable(size, scale: scale);
-
-double suSetWidth(double size, {double scale = 1}) =>
-    _sizeCapable(size, scale: scale);
-
-double suSetHeight(double size, {double scale = 1}) =>
-    _sizeCapable(size, scale: scale);
-
-double _sizeCapable(num size, {double scale = 1}) => (size * scale).toDouble();
-
-extension SizeExtension on num {
-  double get w => _sizeCapable(this);
-
-  double get h => _sizeCapable(this);
-
-  double get sp => _sizeCapable(this);
-
-  double get ssp => _sizeCapable(this);
-}

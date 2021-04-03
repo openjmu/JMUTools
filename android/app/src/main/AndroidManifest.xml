@@ -1,8 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.jmu_tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.openjmu.jmu_tools">
+
+   <uses-permission android:name="android.permission.INTERNET" />
+
    <application
-        android:label="jmu_tools"
-        android:icon="@mipmap/ic_launcher">
+        android:label="JMU Tools"
+        android:icon="@mipmap/ic_launcher"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:usesCleartextTraffic="true"
+        android:allowBackup="false"
+        tools:ignore="UnusedAttribute">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
@@ -32,8 +41,19 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <!-- Don't delete the meta-data below.
-             This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
+       <provider
+               android:name="androidx.core.content.FileProvider"
+               android:authorities="${applicationId}.fileProvider"
+               android:exported="false"
+               android:grantUriPermissions="true"
+               tools:replace="android:authorities">
+           <meta-data
+                   android:name="android.support.FILE_PROVIDER_PATHS"
+                   android:resource="@xml/file_paths"
+                   tools:replace="android:resource" />
+       </provider>
+       <!-- Don't delete the meta-data below.
+            This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />

@@ -2,7 +2,14 @@
 /// [Author] Alex (https://github.com/AlexV525)
 /// [Date] 2021-04-01 20:38
 ///
+import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import 'package:jmu_tools/constants/instances.dart';
+import 'package:jmu_tools/exports/providers.dart';
 import 'package:jmu_tools/models/data_model.dart';
+import 'package:jmu_tools/utils/log_util.dart';
+import 'package:jmu_tools/widgets/in_app_webview.dart';
 
 class API {
   const API._();
@@ -18,6 +25,9 @@ class API {
     labsHost,
     webVpnHost,
   ];
+
+  /// OpenJMU 官网
+  static const String homePage = 'https://openjmu.jmu.edu.cn'; // OpenJMU官网
 
   /// 学期起始日（用于确定周数）
   static const String firstDayOfTerm =
@@ -51,4 +61,70 @@ class API {
   static const String userInfo = '$oap99Host/user/info'; // 用户信息
   static String studentInfo({String uid = '0'}) =>
       '$oa99Host/v2/api/class/studentinfo?uid=$uid'; // 学生信息
+
+  /// 课程表相关
+  static const String courseSchedule = '$labsHost/CourseSchedule/course.html';
+  static const String courseScheduleTeacher =
+      '$labsHost/CourseSchedule/Tcourse.html';
+
+  static const String courseScheduleCourses =
+      '$labsHost/CourseSchedule/StudentCourseSchedule';
+  static const String courseScheduleClassRemark =
+      '$labsHost/CourseSchedule/StudentClassRemark';
+  static const String courseScheduleTermLists =
+      '$labsHost/CourseSchedule/GetSemesters';
+  static const String courseScheduleCustom =
+      '$labsHost/CourseSchedule/StudentCustomSchedule';
+
+  /// 应用中心
+  static const String webAppLists = '$oap99Host/app/unitmenu?cfg=1'; // 获取应用列表
+  static String webAppIcons =
+      '$oap99Host/app/menuicon?size=f128&unitid=55&'; // 获取应用图标
+
+  /// 将域名替换为 WebVPN 映射的二级域名
+  ///
+  /// 例如：http://labs.jmu.edu.cn
+  /// 结果：https://labs-jmu-edu-cn.webvpn.jmu.edu.cn
+  static String replaceWithWebVPN(String url) {
+    LogUtil.d('Replacing url: $url');
+    final Uri previousUri = Uri.parse(url);
+    final String concatHost = previousUri.host.replaceAll('.', '-');
+    final String joinedHost = 'https://$concatHost.'
+        '${API.webVpnHost.replaceAll('https://', '')}';
+    final String replacedUrl = url.replaceAll(API.labsHost, joinedHost);
+    LogUtil.d('Replaced with: $replacedUrl');
+    return replacedUrl;
+  }
+
+  static Future<void> launchWeb({
+    required String url,
+    String? title,
+    WebAppModel? app,
+    bool withCookie = true,
+  }) async {
+    final SettingsProvider provider = Provider.of<SettingsProvider>(
+      currentContext,
+      listen: false,
+    );
+    final bool shouldLaunchFromSystem = provider.launchWebAppFromSystem;
+    final String uri = '${Uri.parse(url.trim())}';
+    if (shouldLaunchFromSystem) {
+      LogUtil.d('Launching web: $uri');
+      launch(
+        uri,
+        forceSafariVC: false,
+        forceWebView: false,
+        enableJavaScript: true,
+        enableDomStorage: true,
+      );
+    } else {
+      LogUtil.d('Launching web: $uri');
+      AppWebView.launch(
+        url: uri,
+        title: title,
+        app: app,
+        withCookie: withCookie,
+      );
+    }
+  }
 }

@@ -6,6 +6,7 @@ export 'apis.dart';
 export 'constants.dart';
 export 'extensions.dart';
 export 'models.dart';
+export 'providers.dart';
 export 'third_party.dart';
 export 'utils.dart';
 export 'widgets.dart';

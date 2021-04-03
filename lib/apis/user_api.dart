@@ -11,11 +11,29 @@ class UserAPI {
   static final ValueNotifier<UserModel?> notifier =
       ValueNotifier<UserModel?>(null);
 
-  static bool get isLogin => notifier.value != null;
+  static bool get isLogin => _loginModel != null;
 
   static UserModel get user => notifier.value!;
 
-  static LoginModel? loginModel;
+  static LoginModel? _loginModel;
+
+  static LoginModel? get loginModel => _loginModel;
+
+  static set loginModel(LoginModel? value) {
+    if (value == _loginModel) {
+      return;
+    }
+    _loginModel = value;
+    if (value == null) {
+      Boxes.loginBox.clear();
+      return;
+    }
+    Boxes.loginBox.put(0, value);
+  }
+
+  static void recoverLoginInfo() {
+    _loginModel = Boxes.loginBox.get(0);
+  }
 
   static Future<bool> login(String username, String password) async {
     final String blowfish = const Uuid().v4();
@@ -41,6 +59,7 @@ class UserAPI {
       notifier.value = user;
       showToast('登录成功');
       HttpUtil.initializeWebViewCookie();
+      SettingsUtil.setUserWorkId(username);
       return true;
     } catch (e) {
       showErrorToast('登录失败 ($e)');

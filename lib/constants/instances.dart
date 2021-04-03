@@ -4,6 +4,8 @@
 ///
 import 'package:flutter/material.dart';
 
+import '../main.dart';
+
 class Instances {
   const Instances._();
 
@@ -14,8 +16,8 @@ class Instances {
   static AppLifecycleState appLifeCycleState = AppLifecycleState.resumed;
 
   static GlobalKey appRepaintBoundaryKey = GlobalKey();
-  static GlobalKey<ScaffoldState> mainPageScaffoldKey =
-      GlobalKey<ScaffoldState>();
+  static GlobalKey<ToolsAppState> appKey = GlobalKey();
+  static GlobalKey<ScaffoldState> mainPageScaffoldKey = GlobalKey();
 }
 
 NavigatorState get navigatorState => Instances.navigatorKey.currentState!;

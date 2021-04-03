@@ -27,7 +27,7 @@ class Constants {
         if (Platform.isIOS) 'packetid': '',
         'platform': Platform.isIOS ? 40 : 30,
         'platformver': Platform.isIOS ? '2.3.2' : '2.3.1',
-        'deviceid': DeviceUtil.deviceUuid,
+        'deviceid': DeviceUtil.deviceUUID,
         'devicetype': deviceType,
         'systype': '$deviceType OS',
         'sysver': Platform.isIOS ? '12.2' : '9.0',

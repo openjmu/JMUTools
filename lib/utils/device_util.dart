@@ -16,7 +16,7 @@ class DeviceUtil {
 
   static String deviceModel = 'OpenJMU Device';
   static String? devicePushToken;
-  static late final String deviceUuid;
+  static late final String deviceUUID;
 
   static Future<void> initDeviceInfo() {
     return Future.wait(<Future<void>>[
@@ -64,15 +64,17 @@ class DeviceUtil {
 
   static Future<void> getDeviceUuid() async {
     // if (HiveFieldUtils.getDeviceUuid() != null) {
-    //   deviceUuid = HiveFieldUtils.getDeviceUuid();
+    //   deviceUUID = StorageUtil.getDeviceUUID();
     // } else {
     //   if (Platform.isIOS) {
-    //     deviceUuid = (deviceInfo as IosDeviceInfo).identifierForVendor;
+    //     deviceUUID = (deviceInfo as IosDeviceInfo).identifierForVendor;
     //   } else {
-    //     await HiveFieldUtils.setDeviceUuid(const Uuid().v4());
+    //     final String uuid = const Uuid().v4();
+    //     deviceUUID = uuid;
+    //     await StorageUtil.setDeviceUuid(uuid);
     //   }
     // }
-    deviceUuid = const Uuid().v4();
-    LogUtil.d('deviceUuid: $deviceUuid');
+    deviceUUID = const Uuid().v4();
+    LogUtil.d('deviceUuid: $deviceUUID');
   }
 }

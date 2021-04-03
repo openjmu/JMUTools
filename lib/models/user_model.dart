@@ -60,6 +60,7 @@ class UserModel extends DataModel {
   @JsonKey(defaultValue: false)
   final bool isFollowing;
 
+  @override
   Map<String, dynamic> toJson() => _$UserModelToJson(this);
 
   /// Methods for json fields convert.

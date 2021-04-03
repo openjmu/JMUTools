@@ -5,6 +5,7 @@
 import 'dart:io';
 
 import 'package:args/args.dart';
+import 'package:process_run/shell.dart';
 
 const String _constKey = 'FromJson(';
 const String _prefixKey = r'_$';
@@ -14,6 +15,12 @@ late final File targetFile;
 
 Future<void> main(List<String> arguments) async {
   final ArgParser parser = ArgParser()
+    ..addFlag(
+      'build',
+      abbr: 'b',
+      defaultsTo: true,
+      help: 'Whether the build_runner should be run first.',
+    )
     ..addOption(
       'model',
       abbr: 'm',
@@ -40,6 +47,11 @@ Future<void> main(List<String> arguments) async {
     );
   final ArgResults results = parser.parse(arguments);
 
+  final bool shouldRunBuildRunner = results['build'] as bool;
+  if (shouldRunBuildRunner) {
+    await runBuildRunner();
+  }
+
   final String mPath = results['model'] as String;
   final String gPath = results['generated'] as String;
   final String tPath = results['data'] as String;
@@ -52,6 +64,15 @@ Future<void> main(List<String> arguments) async {
   generateFile.readAsLines().then((List<String> lines) {
     makeModel(mPath, factoriesName, lines);
   });
+}
+
+Future<void> runBuildRunner() async {
+  final Shell shell = Shell();
+  await shell.run(
+    'flutter packages '
+    'pub run build_runner build '
+    '--delete-conflicting-outputs',
+  );
 }
 
 void makeModel(

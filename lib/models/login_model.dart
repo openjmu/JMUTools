@@ -5,6 +5,7 @@
 part of 'data_model.dart';
 
 @JsonSerializable(fieldRename: FieldRename.snake)
+@HiveType(typeId: HiveAdapterTypeIds.login)
 class LoginModel extends DataModel {
   const LoginModel({
     required this.sid,
@@ -19,12 +20,19 @@ class LoginModel extends DataModel {
   factory LoginModel.fromJson(Map<String, dynamic> json) =>
       _$LoginModelFromJson(json);
 
+  @HiveField(0)
   final String sid;
+  @HiveField(1)
   final String ticket;
+  @HiveField(2)
   final int uid;
+  @HiveField(3)
   final int unitid;
+  @HiveField(4)
   final int type;
+  @HiveField(5)
   final String bindUapAccount;
+  @HiveField(6)
   final Object? pwdtime;
 
   @override

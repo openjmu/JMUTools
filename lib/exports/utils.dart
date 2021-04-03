@@ -16,8 +16,10 @@ import '../utils/toast_util.dart';
 
 export '../utils/device_util.dart';
 export '../utils/http_util.dart';
+export '../utils/input_util.dart';
 export '../utils/log_util.dart';
 export '../utils/package_util.dart';
+export '../utils/settings_util.dart';
 export '../utils/toast_util.dart';
 
 const JsonEncoder GlobalJsonEncoder = JsonEncoder.withIndent('  ');
@@ -61,12 +63,28 @@ Iterable<Locale> get supportedLocales {
 
 /// Empty counter builder for [TextField].
 final InputCounterWidgetBuilder emptyCounterBuilder = (
-    BuildContext _, {
-      required int currentLength,
-      required bool isFocused,
-      required int? maxLength,
-    }) =>
-null;
+  BuildContext _, {
+  required int currentLength,
+  required bool isFocused,
+  required int? maxLength,
+}) =>
+    null;
+
+/// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+/// !!!!!!!!!! USE AT YOUR OWN RISK !!!!!!!!!!
+/// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+void rebuildAllChildren(BuildContext? context) {
+  if (context == null) {
+    return;
+  }
+
+  void rebuild(Element el) {
+    el.markNeedsBuild();
+    el.visitChildren(rebuild);
+  }
+
+  (context as Element).visitChildren(rebuild);
+}
 
 /// Last time stamp when user trying to exit app.
 /// 用户最后一次触发退出应用的时间戳
@@ -93,9 +111,9 @@ void doNothing() {}
 Future<bool> checkPermissions(List<Permission> permissions) async {
   try {
     final Map<Permission, PermissionStatus> status =
-    await permissions.request();
+        await permissions.request();
     return !status.values.any(
-          (PermissionStatus p) => p != PermissionStatus.granted,
+      (PermissionStatus p) => p != PermissionStatus.granted,
     );
   } catch (e) {
     LogUtil.e('Error when requesting permission: $e');
@@ -106,7 +124,7 @@ Future<bool> checkPermissions(List<Permission> permissions) async {
 /// Obtain the screenshot data from a [GlobalKey] with [RepaintBoundary].
 Future<ByteData> obtainScreenshot(GlobalKey key) async {
   final RenderRepaintBoundary boundary =
-  key.currentContext!.findRenderObject() as RenderRepaintBoundary;
+      key.currentContext!.findRenderObject() as RenderRepaintBoundary;
   final ui.Image image = await boundary.toImage(
     pixelRatio: ui.window.devicePixelRatio,
   );

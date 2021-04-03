@@ -122,6 +122,7 @@ class HttpUtil {
       body: body,
       headers: headers,
       responseType: responseType,
+      useTokenDio: useTokenDio,
     );
 
     final Map<String, dynamic> resBody = response.data!;
@@ -148,6 +149,7 @@ class HttpUtil {
       body: body,
       headers: headers,
       responseType: responseType,
+      useTokenDio: useTokenDio,
     );
 
     final List<Map<dynamic, dynamic>>? resBody = response.data;
@@ -162,55 +164,56 @@ class HttpUtil {
     }
   }
 
+  /// Get header only.
+  ///
+  /// This request is targeted to get filename directly.
+  static Future<String?> headFilename(
+    String url, {
+    Map<String, dynamic>? queryParameters,
+    Map<String, dynamic>? data,
+    Options? options,
+    bool useTokenDio = false,
+  }) async {
+    final Response<dynamic> res = await dio.head<dynamic>(
+      url,
+      data: data,
+      queryParameters: queryParameters,
+      options: options ?? Options(followRedirects: true),
+    );
+    String? filename = res.headers
+        .value('content-disposition')
+        ?.split('; ')
+        .where((String element) => element.contains('filename'))
+        .first;
+    if (filename != null) {
+      final RegExp filenameReg = RegExp(r'filename=\"(.+)\"');
+      filename = filenameReg.allMatches(filename).first.group(1);
+      filename = Uri.decodeComponent(filename!);
+    } else {
+      filename = url.split('/').last.split('?').first;
+    }
+    return filename;
+  }
+
   /// For download progress, here we don't simply use the [dio.download],
   /// because there's no file name provided. So in here we take two steps:
-  ///  * Using [HEAD] to get the 'content-disposition' in headers to determine
-  ///   the real file name of the attachment.
-  ///  * Call [dio.download] to download the file with the real name.
-  ///
-  /// Return save path if succeed.
-  static Future<String?> download(
-    String url, {
-    dynamic? data,
+  /// * Using [headFilename] to get the 'content-disposition' in headers to
+  ///   determine the real filename of the attachment.
+  /// * Call [dio.download] to download the file with the real name.
+  static Future<Response<dynamic>?> download(
+    String url,
+    String filename, {
+    Map<String, dynamic>? data,
     Map<String, dynamic>? headers,
     ProgressCallback? progressCallback,
   }) async {
-    Response<dynamic> response;
     String path;
-    final bool isAllGranted = await checkPermissions(
-      <Permission>[Permission.storage],
-    );
-    if (isAllGranted) {
-      showToast('开始下载...');
+    if (await checkPermissions(<Permission>[Permission.storage])) {
+      showToast('开始下载 ...');
       LogUtil.d('File start download: $url');
-      path = '${(await getExternalStorageDirectory())!.path}/';
+      path = '${(await getExternalStorageDirectory())!.path}/$filename';
       try {
-        response = await _getResponse<dynamic>(
-          FetchType.head,
-          url: url,
-          body: data,
-          headers: headers,
-        );
-        String? filename = response.headers
-            .value('content-disposition')
-            ?.split('; ')
-            .where((String element) => element.contains('filename'))
-            .first;
-        if (filename != null) {
-          final RegExp filenameReg = RegExp(r'filename=\"(.+)\"');
-          filename = filenameReg.allMatches(filename).first.group(1);
-          filename = Uri.decodeComponent(filename!);
-          path += filename;
-        } else {
-          filename = url.split('/').last.split('?').first;
-          path += filename;
-        }
-      } catch (e) {
-        LogUtil.e('File download failed when fetching head: $e');
-        return null;
-      }
-      try {
-        response = await dio.download(
+        final Response<dynamic> response = await dio.download(
           url,
           path,
           data: data,
@@ -219,15 +222,13 @@ class HttpUtil {
         );
         LogUtil.d('File downloaded: $path');
         showToast('下载完成 $path');
-        OpenFile.open(path)
-            .then(
-              (OpenResult result) =>
-                  LogUtil.d('File open result: ${result.type}'),
-            )
-            .catchError(
-              (Object e) => LogUtil.e('Error when opening download file: $e'),
-            );
-        return path;
+        try {
+          final OpenResult openFileResult = await OpenFile.open(path);
+          LogUtil.d('File open result: ${openFileResult.type}');
+        } catch (e) {
+          LogUtil.e('Failed to open download file: $path $e');
+        }
+        return response;
       } catch (e) {
         LogUtil.e('File download failed: $e');
         return null;
@@ -377,7 +378,7 @@ class HttpUtil {
       return const <Cookie>[];
     }
     final List<Cookie> replacedCookies = cookies!.map((web_view.Cookie cookie) {
-      return Cookie(cookie.name, cookie.value)
+      return Cookie(cookie.name, cookie.value.toString())
         ..domain = cookie.domain
         ..httpOnly = cookie.isHttpOnly ?? false
         ..secure = cookie.isSecure ?? false
@@ -417,7 +418,7 @@ class HttpUtil {
     final String url = 'http://sso.jmu.edu.cn/imapps/2190'
         '?sid=${UserAPI.loginModel!.sid}';
     try {
-      await HttpUtil.fetch(FetchType.head, url: url);
+      await HttpUtil.fetch<void>(FetchType.head, url: url);
       LogUtil.d('Cookie response did not return 302.');
       return false;
     } on DioError catch (dioError) {
