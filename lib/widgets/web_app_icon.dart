@@ -48,7 +48,7 @@ class WebAppIcon extends StatelessWidget {
       );
     } else {
       LogUtil.e(
-        'Error when load '
+        'Error when loading '
         '${app.name} (${app.appId}-${app.code})'
         '\'s icon.',
       );

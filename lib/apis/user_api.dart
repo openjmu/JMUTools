@@ -92,7 +92,8 @@ class UserAPI {
   static Future<bool> checkSessionValid() async {
     HttpUtil.dio.lock();
     try {
-      await updateUserInfo();
+      await updateUserInfo(useTokenDio: true);
+      LogUtil.d('Session is valid: ${UserAPI.loginModel!.sid}');
       return true;
     } catch (e) {
       // TODO(Alex): 在这里查看状态码，区分什么时候是真失效，什么时候是网络环境差，用于后续的离线支持。
@@ -111,7 +112,7 @@ class UserAPI {
     final String ticket = _loginModel!.ticket!;
     final String blowfish = _loginModel!.blowfish!;
     try {
-      LogUtil.d('Fetch new ticket with: $ticket');
+      LogUtil.d('Fetch new session with: $ticket');
       final LoginModel res = await HttpUtil.fetchModel(
         FetchType.post,
         url: API.loginTicket,
@@ -127,22 +128,23 @@ class UserAPI {
       }
       return false;
     } catch (e) {
-      LogUtil.e('Error when update session: $e');
+      LogUtil.e('Error when updating session: $e');
       return false;
     }
   }
 
-  static Future<bool> updateUserInfo() async {
+  static Future<bool> updateUserInfo({bool useTokenDio = false}) async {
     try {
       final UserModel user = await HttpUtil.fetchModel(
         FetchType.get,
         url: API.userInfo,
         queryParameters: <String, String>{'uid': _loginModel!.uid.toString()},
+        useTokenDio: useTokenDio,
       );
       userModel = user;
       return true;
     } catch (e) {
-      LogUtil.e('Error when update user info: $e');
+      LogUtil.e('Error when updating user info: $e');
       return false;
     }
   }
