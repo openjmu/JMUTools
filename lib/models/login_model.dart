@@ -12,9 +12,9 @@ class LoginModel extends DataModel {
     required this.uid,
     required this.unitId,
     required this.type,
-    required this.bindUapAccount,
     this.ticket,
     this.blowfish,
+    this.bindUapAccount,
     this.pwdTime,
   });
 
@@ -35,7 +35,7 @@ class LoginModel extends DataModel {
   @HiveField(5)
   final int type;
   @HiveField(6)
-  final String bindUapAccount;
+  final String? bindUapAccount;
   @JsonKey(name: 'pwdtime')
   @HiveField(7)
   final Object? pwdTime;
@@ -54,6 +54,9 @@ class LoginModel extends DataModel {
 
   @override
   Map<String, dynamic> toJson() => _$LoginModelToJson(this);
+
+  /// 是否为教师
+  bool get isTeacher => type == 1;
 
   LoginModel copyWith({
     String? sid,
@@ -85,7 +88,7 @@ class LoginModel extends DataModel {
       uid: other.uid,
       unitId: other.unitId,
       type: other.type,
-      bindUapAccount: other.bindUapAccount,
+      bindUapAccount: other.bindUapAccount ?? bindUapAccount,
       pwdTime: other.pwdTime ?? pwdTime,
     );
   }

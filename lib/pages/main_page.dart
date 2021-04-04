@@ -3,8 +3,9 @@
 /// [Date] 2021-04-03 16:44
 ///
 import 'package:flutter/material.dart';
-
 import 'package:jmu_tools/exports/export.dart';
+
+import 'login_page.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -22,8 +23,20 @@ class _MainPageState extends State<MainPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             ThemeTextButton(
-              text: 'Hi there',
-              onPressed: () => UserAPI.getTicket(),
+              text: 'checkSessionValid',
+              onPressed: () => UserAPI.checkSessionValid(),
+            ),
+            ThemeTextButton(
+              text: 'getTicket',
+              onPressed: () => UserAPI.updateSession(),
+            ),
+            ThemeTextButton(
+              text: 'updateUserInfo',
+              onPressed: () => UserAPI.updateUserInfo(),
+            ),
+            ThemeTextButton(
+              text: 'logout',
+              onPressed: () => UserAPI.logout(),
             ),
             ThemeTextButton(
               text: 'clearBoxes',
@@ -36,5 +49,19 @@ class _MainPageState extends State<MainPage> {
         // ),
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    UserAPI.checkSessionValid().then((bool isValid) {
+      if (!isValid) {
+        navigatorState.pushAndRemoveUntil(
+          MaterialPageRoute<void>(builder: (_) => const LoginPage()),
+          (_) => false,
+        );
+        showErrorToast('身份已失效');
+      }
+    });
   }
 }

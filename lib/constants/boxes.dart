@@ -19,6 +19,9 @@ class Boxes {
   /// 登录信息保存表
   static late final Box<LoginModel> loginBox;
 
+  /// 用户信息保存表
+  static late final Box<UserModel> userBox;
+
   /// 课程缓存表
   static late final Box<Map<dynamic, dynamic>> coursesBox;
 
@@ -43,11 +46,13 @@ class Boxes {
   static Future<void> openBoxes() async {
     Hive
       ..registerAdapter(LoginModelAdapter())
+      ..registerAdapter(UserModelAdapter())
       ..registerAdapter(CourseModelAdapter())
       ..registerAdapter(ScoreModelAdapter())
       ..registerAdapter(WebAppModelAdapter());
 
     loginBox = await Hive.openBox('${hiveBoxPrefix}_login');
+    userBox = await Hive.openBox('${hiveBoxPrefix}_user');
     coursesBox = await Hive.openBox('${hiveBoxPrefix}_user_courses');
     courseRemarkBox = await Hive.openBox('${hiveBoxPrefix}_user_course_remark');
     startWeekBox = await Hive.openBox('${hiveBoxPrefix}_start_week');
@@ -101,6 +106,7 @@ class Boxes {
         LogUtil.d('Clearing Hive Boxes...');
         await Future.wait<void>(<Future<dynamic>>[
           loginBox.clear(),
+          userBox.clear(),
           coursesBox.clear(),
           courseRemarkBox.clear(),
           scoresBox.clear(),
@@ -122,7 +128,8 @@ class HiveAdapterTypeIds {
   const HiveAdapterTypeIds._();
 
   static const int login = 0;
-  static const int course = 1;
-  static const int score = 2;
-  static const int webapp = 3;
+  static const int user = 1;
+  static const int course = 2;
+  static const int score = 3;
+  static const int webapp = 4;
 }

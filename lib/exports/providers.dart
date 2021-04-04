@@ -38,6 +38,7 @@ List<SingleChildWidget> get globalProviders => _providers;
 
 final List<ChangeNotifierProvider<dynamic>> _providers =
     <ChangeNotifierProvider<dynamic>>[
+  buildProvider<CoursesProvider>(CoursesProvider()),
   buildProvider<SettingsProvider>(SettingsProvider()),
   buildProvider<ThemesProvider>(ThemesProvider()),
 ];

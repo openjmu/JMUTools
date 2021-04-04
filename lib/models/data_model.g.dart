@@ -8,7 +8,7 @@ part of 'data_model.dart';
 
 class CourseModelAdapter extends TypeAdapter<CourseModel> {
   @override
-  final int typeId = 1;
+  final int typeId = 2;
 
   @override
   CourseModel read(BinaryReader reader) {
@@ -94,9 +94,9 @@ class LoginModelAdapter extends TypeAdapter<LoginModel> {
       uid: fields[3] as int,
       unitId: fields[4] as int,
       type: fields[5] as int,
-      bindUapAccount: fields[6] as String,
       ticket: fields[1] as String?,
       blowfish: fields[2] as String?,
+      bindUapAccount: fields[6] as String?,
       pwdTime: fields[7] as Object?,
     );
   }
@@ -136,7 +136,7 @@ class LoginModelAdapter extends TypeAdapter<LoginModel> {
 
 class ScoreModelAdapter extends TypeAdapter<ScoreModel> {
   @override
-  final int typeId = 2;
+  final int typeId = 3;
 
   @override
   ScoreModel read(BinaryReader reader) {
@@ -183,9 +183,64 @@ class ScoreModelAdapter extends TypeAdapter<ScoreModel> {
           typeId == other.typeId;
 }
 
+class UserModelAdapter extends TypeAdapter<UserModel> {
+  @override
+  final int typeId = 1;
+
+  @override
+  UserModel read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return UserModel(
+      uid: fields[0] as String,
+      username: fields[1] as String,
+      gender: fields[2] as int,
+      workId: fields[3] as String,
+      signature: fields[4] as String?,
+      type: fields[5] as int,
+      sysAvatar: fields[6] as bool,
+      isFollowing: fields[7] as bool,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, UserModel obj) {
+    writer
+      ..writeByte(8)
+      ..writeByte(0)
+      ..write(obj.uid)
+      ..writeByte(1)
+      ..write(obj.username)
+      ..writeByte(2)
+      ..write(obj.gender)
+      ..writeByte(3)
+      ..write(obj.workId)
+      ..writeByte(4)
+      ..write(obj.signature)
+      ..writeByte(5)
+      ..write(obj.type)
+      ..writeByte(6)
+      ..write(obj.sysAvatar)
+      ..writeByte(7)
+      ..write(obj.isFollowing);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is UserModelAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
 class WebAppModelAdapter extends TypeAdapter<WebAppModel> {
   @override
-  final int typeId = 3;
+  final int typeId = 4;
 
   @override
   WebAppModel read(BinaryReader reader) {
@@ -242,9 +297,9 @@ LoginModel _$LoginModelFromJson(Map<String, dynamic> json) {
     uid: json['uid'] as int,
     unitId: json['unitid'] as int,
     type: json['type'] as int,
-    bindUapAccount: json['bind_uap_account'] as String,
     ticket: json['ticket'] as String?,
     blowfish: json['blowfish'] as String?,
+    bindUapAccount: json['bind_uap_account'] as String?,
     pwdTime: json['pwdtime'],
   );
 }

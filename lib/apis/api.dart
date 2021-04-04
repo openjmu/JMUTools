@@ -11,6 +11,8 @@ import 'package:jmu_tools/models/data_model.dart';
 import 'package:jmu_tools/utils/log_util.dart';
 import 'package:jmu_tools/widgets/in_app_webview.dart';
 
+import 'user_api.dart';
+
 class API {
   const API._();
 
@@ -59,8 +61,8 @@ class API {
 
   /// 用户相关
   static const String userInfo = '$oap99Host/user/info'; // 用户信息
-  static String studentInfo({String uid = '0'}) =>
-      '$oa99Host/v2/api/class/studentinfo?uid=$uid'; // 学生信息
+  static String studentInfo({String? uid}) =>
+      '$oa99Host/v2/api/class/studentinfo?uid=${uid ?? UserAPI.user.uid}'; // 学生信息
 
   /// 课程表相关
   static const String courseSchedule = '$labsHost/CourseSchedule/course.html';

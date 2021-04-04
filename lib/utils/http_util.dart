@@ -30,10 +30,20 @@ class HttpUtil {
   static const bool shouldLogRequest = false;
 
   static final Dio dio = Dio(
-    BaseOptions(connectTimeout: 15000, followRedirects: true),
+    BaseOptions(
+      connectTimeout: 10000,
+      sendTimeout: 10000,
+      receiveTimeout: 10000,
+      followRedirects: true,
+    ),
   );
   static final Dio tokenDio = Dio(
-    BaseOptions(connectTimeout: 15000, followRedirects: true),
+    BaseOptions(
+      connectTimeout: 10000,
+      sendTimeout: 10000,
+      receiveTimeout: 10000,
+      followRedirects: true,
+    ),
   );
 
   static late final PersistCookieJar cookieJar;
@@ -102,6 +112,7 @@ class HttpUtil {
       body: body,
       headers: headers,
       responseType: responseType,
+      useTokenDio: useTokenDio,
     );
     return response.data as T;
   }
@@ -217,7 +228,11 @@ class HttpUtil {
           url,
           path,
           data: data,
-          options: Options(headers: headers),
+          options: Options(
+            headers: headers,
+            sendTimeout: 10000,
+            receiveTimeout: 10000,
+          ),
           onReceiveProgress: progressCallback,
         );
         LogUtil.d('File downloaded: $path');
@@ -280,6 +295,8 @@ class HttpUtil {
             headers: headers,
             receiveDataWhenStatusError: true,
             responseType: responseType,
+            sendTimeout: 10000,
+            receiveTimeout: 10000,
           ),
         );
         break;
@@ -291,6 +308,8 @@ class HttpUtil {
             headers: headers,
             receiveDataWhenStatusError: true,
             responseType: responseType,
+            sendTimeout: 10000,
+            receiveTimeout: 10000,
           ),
         );
         break;
@@ -303,6 +322,8 @@ class HttpUtil {
             headers: headers,
             receiveDataWhenStatusError: true,
             responseType: responseType,
+            sendTimeout: 10000,
+            receiveTimeout: 10000,
           ),
         );
         break;
@@ -315,6 +336,8 @@ class HttpUtil {
             headers: headers,
             receiveDataWhenStatusError: true,
             responseType: responseType,
+            sendTimeout: 10000,
+            receiveTimeout: 10000,
           ),
         );
         break;
@@ -327,6 +350,8 @@ class HttpUtil {
             headers: headers,
             receiveDataWhenStatusError: true,
             responseType: responseType,
+            sendTimeout: 10000,
+            receiveTimeout: 10000,
           ),
         );
         break;
@@ -339,6 +364,8 @@ class HttpUtil {
             headers: headers,
             receiveDataWhenStatusError: true,
             responseType: responseType,
+            sendTimeout: 10000,
+            receiveTimeout: 10000,
           ),
         );
         break;
@@ -362,7 +389,7 @@ class HttpUtil {
       ..lock()
       ..clear();
 
-    if (await UserAPI.getTicket()) {
+    if (await UserAPI.updateSession()) {
       LogUtil.d(
         'Ticket updated success with new ticket: ${UserAPI.loginModel?.sid}',
       );

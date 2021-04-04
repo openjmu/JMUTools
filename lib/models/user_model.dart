@@ -10,6 +10,7 @@ part of 'data_model.dart';
 /// [uid] 用户uid, [unitId] 组织/学校id, [workId] 工号/学号,
 /// [name] 名字, [signature] 签名, [gender] 性别, [isFollowing] 是否已关注
 @JsonSerializable(fieldRename: FieldRename.snake)
+@HiveType(typeId: HiveAdapterTypeIds.user)
 class UserModel extends DataModel {
   const UserModel({
     required this.uid,
@@ -48,16 +49,24 @@ class UserModel extends DataModel {
   }
 
   @JsonKey(fromJson: _uidToString)
+  @HiveField(0)
   final String uid;
+  @HiveField(1)
   final String username;
+  @HiveField(2)
   final int gender;
   @JsonKey(defaultValue: '0', name: 'workid')
+  @HiveField(3)
   final String workId;
+  @HiveField(4)
   final String? signature;
+  @HiveField(5)
   final int type;
   @JsonKey(fromJson: _sysAvatarToBool, name: 'sysavatar')
+  @HiveField(6)
   final bool sysAvatar;
   @JsonKey(defaultValue: false)
+  @HiveField(7)
   final bool isFollowing;
 
   @override
