@@ -89,15 +89,12 @@ class UserAPI {
   ///
   /// 如果可用，不需要更新 session。
   /// 如果不可用，先尝试更新 session，成功则返回 `true`，否则为 `false`。
-  static Future<bool> checkSessionValid() async {
+  static Future<void> checkSessionValid() async {
     HttpUtil.dio.lock();
     try {
-      await updateUserInfo(useTokenDio: true);
-      LogUtil.d('Session is valid: ${UserAPI.loginModel!.sid}');
-      return true;
+      await updateUserInfo(useTokenDio: true, renewSession: true);
     } catch (e) {
-      // TODO(Alex): 在这里查看状态码，区分什么时候是真失效，什么时候是网络环境差，用于后续的离线支持。
-      return await updateSession();
+      await updateSession();
     } finally {
       HttpUtil.dio.unlock();
     }
@@ -117,23 +114,29 @@ class UserAPI {
         FetchType.post,
         url: API.loginTicket,
         body: Constants.loginParams(blowfish: blowfish, ticket: ticket),
+        useTokenDio: true,
       );
       loginModel = _loginModel!.merge(res);
-      if (await updateUserInfo()) {
-        await Future.wait(<Future<void>>[
-          HttpUtil.updateDomainsCookies(API.jmuHosts),
-          HttpUtil.initializeWebViewCookie(),
-        ]);
-        return true;
-      }
-      return false;
+      await Future.wait(<Future<void>>[
+        HttpUtil.updateDomainsCookies(API.jmuHosts),
+        HttpUtil.initializeWebViewCookie(),
+      ]);
+      return await updateUserInfo(useTokenDio: true);
     } catch (e) {
       LogUtil.e('Error when updating session: $e');
+      navigatorState.pushAndRemoveUntil(
+        MaterialPageRoute<void>(builder: (_) => const LoginPage()),
+        (_) => false,
+      );
+      showErrorToast('身份已失效');
       return false;
     }
   }
 
-  static Future<bool> updateUserInfo({bool useTokenDio = false}) async {
+  static Future<bool> updateUserInfo({
+    bool useTokenDio = false,
+    bool renewSession = false,
+  }) async {
     try {
       final UserModel user = await HttpUtil.fetchModel(
         FetchType.get,
@@ -142,9 +145,11 @@ class UserAPI {
         useTokenDio: useTokenDio,
       );
       userModel = user;
+      if (renewSession) {
+        LogUtil.d('Session is valid: ${UserAPI.loginModel!.sid}');
+      }
       return true;
     } catch (e) {
-      LogUtil.e('Error when updating user info: $e');
       return false;
     }
   }

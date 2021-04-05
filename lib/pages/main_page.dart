@@ -5,16 +5,27 @@
 import 'package:flutter/material.dart';
 import 'package:jmu_tools/exports/export.dart';
 
-import 'login_page.dart';
-
 class MainPage extends StatefulWidget {
-  const MainPage({Key? key}) : super(key: key);
+  const MainPage({Key? key, this.isFromLogin = false}) : super(key: key);
+
+  /// 判断是否是从登录页跳转进入
+  ///
+  /// 默认打开首页需要检查 session，刚登录的则不需要。
+  final bool isFromLogin;
 
   @override
   _MainPageState createState() => _MainPageState();
 }
 
 class _MainPageState extends State<MainPage> {
+  @override
+  void initState() {
+    super.initState();
+    if (!widget.isFromLogin) {
+      UserAPI.checkSessionValid();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,6 +53,11 @@ class _MainPageState extends State<MainPage> {
               text: 'clearBoxes',
               onPressed: () => Boxes.clearAllBoxes(context),
             ),
+            ThemeTextButton(
+              text: 'test',
+              onPressed: () =>
+                  HttpUtil.fetch<void>(FetchType.post, url: API.logout),
+            ),
           ],
         ),
         // child: Text(
@@ -49,19 +65,5 @@ class _MainPageState extends State<MainPage> {
         // ),
       ),
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    UserAPI.checkSessionValid().then((bool isValid) {
-      if (!isValid) {
-        navigatorState.pushAndRemoveUntil(
-          MaterialPageRoute<void>(builder: (_) => const LoginPage()),
-          (_) => false,
-        );
-        showErrorToast('身份已失效');
-      }
-    });
   }
 }

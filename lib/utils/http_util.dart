@@ -382,24 +382,6 @@ class HttpUtil {
     return response;
   }
 
-  /// Method to update ticket.
-  static Future<void> updateTicket() async {
-    // Lock and clear dio while requesting new ticket.
-    dio
-      ..lock()
-      ..clear();
-
-    if (await UserAPI.updateSession()) {
-      LogUtil.d(
-        'Ticket updated success with new ticket: ${UserAPI.loginModel?.sid}',
-      );
-    } else {
-      LogUtil.e('Ticket updated error: ${UserAPI.loginModel?.sid}');
-    }
-    // Release lock.
-    dio.unlock();
-  }
-
   static List<Cookie> convertWebViewCookies(List<web_view.Cookie>? cookies) {
     if (cookies?.isNotEmpty != true) {
       return const <Cookie>[];
@@ -542,7 +524,11 @@ class HttpUtil {
           return;
         }
         if (e.response?.statusCode == HttpStatus.unauthorized) {
-          updateTicket();
+          LogUtil.e(
+            'Session is outdated, calling update...',
+            withStackTrace: false,
+          );
+          UserAPI.updateSession();
         }
         if (isLogEnabled) {
           LogUtil.e(

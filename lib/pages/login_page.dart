@@ -37,7 +37,9 @@ class _LoginPageState extends State<LoginPage> {
     _loginModel.isRequesting = true;
     if (await UserAPI.login(_loginModel.username, _loginModel.password)) {
       navigatorState.pushReplacement(
-        MaterialPageRoute<void>(builder: (_) => const MainPage()),
+        MaterialPageRoute<void>(
+          builder: (_) => const MainPage(isFromLogin: true),
+        ),
       );
       return;
     }
