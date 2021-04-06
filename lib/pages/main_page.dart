@@ -21,21 +21,24 @@ class _MainPageState extends State<MainPage> {
   @override
   void initState() {
     super.initState();
+    _initialize();
+  }
+
+  Future<void> _initialize() async {
     if (!widget.isFromLogin) {
-      UserAPI.checkSessionValid().whenComplete(() {
-        context.read<CoursesProvider>().initCourses();
-        context.read<ScoresProvider>().initScore();
-      });
+      await UserAPI.checkSessionValid();
     }
+    context.read<CoursesProvider>().initCourses();
+    context.read<ScoresProvider>().initScore();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: ListView(
           children: <Widget>[
+            VGap(80.w),
             ThemeTextButton(
               text: 'checkSessionValid',
               onPressed: () => UserAPI.checkSessionValid(),
@@ -61,6 +64,8 @@ class _MainPageState extends State<MainPage> {
               onPressed: () =>
                   HttpUtil.fetch<void>(FetchType.post, url: API.logout),
             ),
+            Text(context.watch<CoursesProvider>().courses?.toString() ?? ''),
+            Text(context.watch<ScoresProvider>().scores?.toString() ?? ''),
           ],
         ),
         // child: Text(

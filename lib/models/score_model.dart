@@ -8,7 +8,7 @@ part of 'data_model.dart';
 @HiveType(typeId: HiveAdapterTypeIds.score)
 class ScoreModel extends DataModel {
   const ScoreModel({
-    required this.code,
+    this.code,
     required this.courseName,
     required this.score,
     required this.termId,
@@ -20,7 +20,7 @@ class ScoreModel extends DataModel {
       _$ScoreModelFromJson(json);
 
   @HiveField(0)
-  final String code;
+  final String? code;
   @HiveField(1)
   final String courseName;
   @HiveField(2)

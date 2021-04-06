@@ -145,7 +145,7 @@ class ScoreModelAdapter extends TypeAdapter<ScoreModel> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return ScoreModel(
-      code: fields[0] as String,
+      code: fields[0] as String?,
       courseName: fields[1] as String,
       score: fields[2] as String,
       termId: fields[3] as String,
@@ -318,7 +318,7 @@ Map<String, dynamic> _$LoginModelToJson(LoginModel instance) =>
 
 ScoreModel _$ScoreModelFromJson(Map<String, dynamic> json) {
   return ScoreModel(
-    code: json['code'] as String,
+    code: json['code'] as String?,
     courseName: json['courseName'] as String,
     score: json['score'] as String,
     termId: json['termId'] as String,

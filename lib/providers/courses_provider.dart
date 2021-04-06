@@ -11,18 +11,6 @@ class CoursesProvider extends ChangeNotifier {
 
   final int maxCoursesPerDay = 12;
 
-  DateTime? _now;
-
-  DateTime? get now => _now;
-
-  set now(DateTime? value) {
-    if (value == _now) {
-      return;
-    }
-    _now = value;
-    notifyListeners();
-  }
-
   Map<int, Map<dynamic, dynamic>>? _courses;
 
   Map<int, Map<dynamic, dynamic>>? get courses => _courses;
@@ -82,7 +70,6 @@ class CoursesProvider extends ChangeNotifier {
   }
 
   void initCourses() {
-    now = DateTime.now();
     _courses =
         _courseBox.get(UserAPI.user.uid)?.cast<int, Map<dynamic, dynamic>>();
     _remark = _courseRemarkBox.get(UserAPI.user.uid);
@@ -114,7 +101,6 @@ class CoursesProvider extends ChangeNotifier {
     _firstLoaded = false;
     _hasCourses = true;
     _showError = false;
-    _now = null;
   }
 
   Map<int, Map<int, dynamic>> resetCourses() {
@@ -136,15 +122,35 @@ class CoursesProvider extends ChangeNotifier {
     final DateProvider dateProvider =
         Provider.of<DateProvider>(currentContext, listen: false);
     try {
-      final List<Response<String>> responses =
-          await Future.wait<Response<String>>(
-        <Future<Response<String>>>[
-          CourseAPI.getCourse(isOuterNetwork: isOuterNetwork),
-          CourseAPI.getRemark(isOuterNetwork: isOuterNetwork),
-        ],
-      );
-      await courseResponseHandler(responses[0]);
-      await remarkResponseHandler(responses[1]);
+      if (isOuterNetwork) {
+        final List<Map<String, dynamic>> responses =
+            await Future.wait<Map<String, dynamic>>(
+          <Future<Map<String, dynamic>>>[
+            CourseAPI.getCourseWithVPN(),
+            CourseAPI.getRemarkWithVPN(),
+          ],
+        );
+        await Future.wait(
+          <Future<void>>[
+            courseResponseHandler(responses[0]),
+            remarkResponseHandler(responses[1]),
+          ],
+        );
+      } else {
+        final List<String> responses = await Future.wait<String>(
+          <Future<String>>[CourseAPI.getCourse(), CourseAPI.getRemark()],
+        );
+        await Future.wait(
+          <Future<void>>[
+            courseResponseHandler(
+              jsonDecode(responses[0]) as Map<String, dynamic>,
+            ),
+            remarkResponseHandler(
+              jsonDecode(responses[1]) as Map<String, dynamic>,
+            ),
+          ],
+        );
+      }
       if (!_firstLoaded) {
         if (dateProvider.currentWeek != 0) {
           _firstLoaded = true;
@@ -181,9 +187,7 @@ class CoursesProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> courseResponseHandler(Response<String> response) async {
-    final Map<String, dynamic> data =
-        jsonDecode(response.data!) as Map<String, dynamic>;
+  Future<void> courseResponseHandler(Map<String, dynamic> data) async {
     final List<dynamic> _courseList = data['courses'] as List<dynamic>;
     final List<dynamic> _customCourseList = data['othCase'] as List<dynamic>;
     Map<int, Map<int, dynamic>> _s;
@@ -207,16 +211,8 @@ class CoursesProvider extends ChangeNotifier {
         UserAPI.user.uid, Map<int, Map<int, dynamic>>.from(_s));
   }
 
-  Future<void> remarkResponseHandler(Response<String> response) async {
-    Map<String, dynamic>? data;
-    if (response.data != null) {
-      data = jsonDecode(response.data!) as Map<String, dynamic>;
-    }
-
-    String? _r;
-    if (data != null) {
-      _r = data['classScheduleRemark'] as String;
-    }
+  Future<void> remarkResponseHandler(Map<String, dynamic> data) async {
+    final String? _r = data['classScheduleRemark'] as String?;
     if (_r.isNotNullOrEmpty) {
       _remark = _r;
       await _courseRemarkBox.delete(UserAPI.user.uid);

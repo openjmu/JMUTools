@@ -2,7 +2,6 @@
 /// [Author] Alex (https://github.com/AlexV525)
 /// [Date] 2021-04-03 14:21
 ///
-import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -30,38 +29,34 @@ class CourseAPI {
 
   static Set<CourseColor> coursesUniqueColor = <CourseColor>{};
 
-  static Future<Response<String>> getCourse({
-    bool isOuterNetwork = false,
-  }) async {
-    final String url = isOuterNetwork
-        ? API.replaceWithWebVPN(API.courseScheduleCourses)
-        : API.courseScheduleCourses;
-    final List<Cookie> cookies = HttpUtil.convertWebViewCookies(
-      await HttpUtil.webViewCookieManager.getCookies(url: Uri.parse(url)),
-    );
-    await HttpUtil.updateDomainsCookies(
-      <String>[
-        API.replaceWithWebVPN(API.courseScheduleCourses),
-        API.courseScheduleCourses,
-      ],
-      cookies,
-    );
+  static Future<String> getCourse() {
     return HttpUtil.fetch(
       FetchType.get,
-      url: url,
+      url: API.courseScheduleCourses,
       queryParameters: <String, String>{'sid': UserAPI.loginModel!.sid},
     );
   }
 
-  static Future<Response<String>> getRemark({
-    bool isOuterNetwork = false,
-  }) async {
-    final String url = isOuterNetwork
-        ? API.replaceWithWebVPN(API.courseScheduleClassRemark)
-        : API.courseScheduleClassRemark;
+  static Future<Map<String, dynamic>> getCourseWithVPN() {
     return HttpUtil.fetch(
       FetchType.get,
-      url: url,
+      url: API.replaceWithWebVPN(API.courseScheduleCourses),
+      queryParameters: <String, String>{'sid': UserAPI.loginModel!.sid},
+    );
+  }
+
+  static Future<String> getRemark() {
+    return HttpUtil.fetch(
+      FetchType.get,
+      url: API.courseScheduleClassRemark,
+      queryParameters: <String, String>{'sid': UserAPI.loginModel!.sid},
+    );
+  }
+
+  static Future<Map<String, dynamic>> getRemarkWithVPN() {
+    return HttpUtil.fetch(
+      FetchType.get,
+      url: API.replaceWithWebVPN(API.courseScheduleClassRemark),
       queryParameters: <String, String>{'sid': UserAPI.loginModel!.sid},
     );
   }
@@ -101,9 +96,7 @@ class CourseAPI {
   }
 
   static bool inCurrentDay(CourseModel course) {
-    final CoursesProvider provider =
-        Provider.of<CoursesProvider>(currentContext, listen: false);
-    return course.day == provider.now?.weekday;
+    return course.day == currentTime.weekday;
   }
 
   static bool inCurrentWeek(CourseModel course, {int? currentWeek}) {
