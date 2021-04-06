@@ -224,10 +224,14 @@ class CoursesProvider extends ChangeNotifier {
     final int courseDay = course.day;
     final int courseTime = course.time.toInt();
     try {
+      if (!courses.containsKey(courseDay)) {
+        courses[courseDay] = <int, dynamic>{courseTime: <CourseModel>[]};
+      }
       courses[courseDay]![courseTime].add(course);
     } catch (e) {
       LogUtil.e(
-        'Failed when trying to add course at day($courseDay) time($courseTime)',
+        'Failed when trying to add course at '
+        'day($courseDay) time($courseTime): $e',
       );
       LogUtil.e('$course');
     }
