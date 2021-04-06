@@ -2,7 +2,11 @@
 /// [Author] Alex (https://github.com/AlexV525)
 /// [Date] 2021-04-01 20:58
 ///
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:html/dom.dart' as dom;
+import 'package:html/parser.dart';
 
 import 'package:jmu_tools/exports/export.dart';
 import 'package:jmu_tools/pages/login_page.dart';
@@ -58,6 +62,10 @@ class UserAPI {
       blowfish: blowfish,
     );
     try {
+      if (!await webVpnLogin(username, password)) {
+        showToast('登录失败');
+        return false;
+      }
       final LoginModel loginData = await HttpUtil.fetchModel(
         FetchType.post,
         url: API.login,
@@ -146,7 +154,7 @@ class UserAPI {
       );
       userModel = user;
       if (renewSession) {
-        LogUtil.d('Session is valid: ${UserAPI.loginModel!.sid}');
+        LogUtil.d('Session is valid: ${loginModel!.sid}');
       }
       return true;
     } catch (e) {
@@ -170,11 +178,124 @@ class UserAPI {
     HttpUtil.tokenDio.clear();
     HttpUtil.cookieJar.deleteAll();
     HttpUtil.tokenCookieJar.deleteAll();
-    HttpUtil.webViewCookieManager.deleteAllCookies();
+    if (Platform.isAndroid || Platform.isIOS) {
+      HttpUtil.webViewCookieManager.deleteAllCookies();
+    }
     final String workId = SettingsUtil.getUserWorkId()!;
     userModel = null;
     await Boxes.settingsBox.clear();
     await SettingsUtil.setUserWorkId(workId);
     showToast('退出登录成功');
   }
+
+  /// 使用 [username] 和 [password] 登录
+  static Future<bool> webVpnLogin(String username, String password) async {
+    try {
+      final String r = await HttpUtil.fetch(
+        FetchType.get,
+        url: API.webVpnHost,
+        useTokenDio: true,
+      );
+      // 解析返回内容。如果包含「退出登录」，同时不包含「登录 Login」，即为已登录。
+      if (r.contains('退出登录') && !r.contains('登录 Login')) {
+        return true;
+      }
+      // 获取 DOM 中 <input name="authenticity_token" ... /> 的值。
+      final dom.Document document = parse(r);
+      final dom.Element tokenElement = document.querySelector(
+        'input[name="authenticity_token"]',
+      )!;
+      final String token = tokenElement.attributes['value']!;
+      // 将 token 保存，而后可以用 token 继续请求。
+      await SettingsUtil.setWebVpnToken(token);
+
+      final Response<String> loginRes = await HttpUtil.getResponse(
+        FetchType.post,
+        url: API.webVpnLogin,
+        queryParameters: <String, String>{
+          'utf8': '✓',
+          'authenticity_token': token,
+          'user[login]': username,
+          'user[password]': password,
+          'user[dymatice_code]': 'unknown',
+          'user[otp_with_capcha]': 'false',
+          'commit': '登录 Login',
+        },
+        contentType: 'application/x-www-form-urlencoded',
+        useTokenDio: true,
+      );
+      // 直接解析返回内容中的头部内容。
+      await _setVPNsValues(loginRes);
+      return true;
+    } on DioError catch (dioError) {
+      // 当状态码为 302 时，代表登录成功，此时继续调用刷新接口，获取 session。
+      if (dioError.response?.statusCode == HttpStatus.found) {
+        return webVpnUpdate();
+      } else {
+        LogUtil.e('Failed to login WebVPN: $dioError');
+        await _clearVPNsValues();
+        return false;
+      }
+    } catch (e) {
+      LogUtil.e('Error when login to WebVPN: $e');
+      await _clearVPNsValues();
+      return false;
+    }
+  }
+
+  static Future<bool> webVpnUpdate() async {
+    try {
+      final Response<String> res = await HttpUtil.getResponse(
+        FetchType.get,
+        url: API.webVpnUpdate,
+        contentType: 'application/x-www-form-urlencoded',
+        useTokenDio: true,
+      );
+      await _setVPNsValues(res);
+      return true;
+    } on DioError catch (dioError) {
+      if (dioError.response?.statusCode == HttpStatus.found) {
+        await _setVPNsValues(dioError.response!);
+        return true;
+      } else {
+        await _clearVPNsValues();
+        LogUtil.e('Failed to login WebVPN: $dioError');
+        return false;
+      }
+    } catch (e) {
+      await _clearVPNsValues();
+      LogUtil.e('Error when login to WebVPN: $e');
+      return false;
+    }
+  }
+
+  static Future<void> _setVPNsValues(Response<dynamic> res) async {
+    final List<Cookie> cookies = <Cookie>[
+      ...res.headers['set-cookie']!
+          .map((String s) => Cookie.fromSetCookieValue(s))
+          .toList(),
+      Cookie('SERVERID', 'Server1'),
+    ];
+    await Future.wait(<Future<void>>[
+      HttpUtil.updateDomainsCookies(
+        <String>['http://webvpn.jmu.edu.cn/'],
+        cookies,
+      ),
+      HttpUtil.updateDomainsCookies(
+        <String>['https://webvpn.jmu.edu.cn/'],
+        cookies,
+      ),
+      if (Platform.isAndroid || Platform.isIOS)
+        for (final Cookie cookie in cookies)
+          HttpUtil.webViewCookieManager.setCookie(
+            url: Uri.parse('https://webvpn.jmu.edu.cn/'),
+            name: cookie.name,
+            value: cookie.value,
+            domain: 'webvpn.jmu.edu.cn',
+            isSecure: cookie.secure,
+          ),
+    ]);
+  }
+
+  static Future<void> _clearVPNsValues() => SettingsUtil.setWebVpnToken(null);
 }

@@ -99,6 +99,6 @@ class SettingsUtil {
   static String getWebVpnToken() => _box.get(_webVpnToken) as String;
 
   /// 写入 WebVPN Token
-  static Future<void> setWebVpnToken(String value) =>
+  static Future<void> setWebVpnToken(String? value) =>
       _box.put(_webVpnToken, value);
 }

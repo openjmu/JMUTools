@@ -102,15 +102,17 @@ class HttpUtil {
     Map<String, String>? queryParameters,
     dynamic? body,
     Map<String, dynamic>? headers,
+    String? contentType,
     ResponseType responseType = ResponseType.json,
     bool useTokenDio = false,
   }) async {
-    final Response<T> response = await _getResponse(
+    final Response<T> response = await getResponse(
       fetchType,
       url: url,
       queryParameters: queryParameters,
       body: body,
       headers: headers,
+      contentType: contentType,
       responseType: responseType,
       useTokenDio: useTokenDio,
     );
@@ -123,15 +125,17 @@ class HttpUtil {
     Map<String, String>? queryParameters,
     dynamic? body,
     Map<String, dynamic>? headers,
+    String? contentType,
     ResponseType responseType = ResponseType.json,
     bool useTokenDio = false,
   }) async {
-    final Response<Map<String, dynamic>> response = await _getResponse(
+    final Response<Map<String, dynamic>> response = await getResponse(
       fetchType,
       url: url,
       queryParameters: queryParameters,
       body: body,
       headers: headers,
+      contentType: contentType,
       responseType: responseType,
       useTokenDio: useTokenDio,
     );
@@ -150,15 +154,17 @@ class HttpUtil {
     Map<String, String>? queryParameters,
     dynamic? body,
     Map<String, dynamic>? headers,
+    String? contentType,
     ResponseType responseType = ResponseType.json,
     bool useTokenDio = false,
   }) async {
-    final Response<List<Map<dynamic, dynamic>>> response = await _getResponse(
+    final Response<List<Map<dynamic, dynamic>>> response = await getResponse(
       fetchType,
       url: url,
       queryParameters: queryParameters,
       body: body,
       headers: headers,
+      contentType: contentType,
       responseType: responseType,
       useTokenDio: useTokenDio,
     );
@@ -216,6 +222,7 @@ class HttpUtil {
     String filename, {
     Map<String, dynamic>? data,
     Map<String, dynamic>? headers,
+    String? contentType,
     ProgressCallback? progressCallback,
   }) async {
     String path;
@@ -228,7 +235,7 @@ class HttpUtil {
           url,
           path,
           data: data,
-          options: Options(headers: headers),
+          options: Options(contentType: contentType, headers: headers),
           onReceiveProgress: progressCallback,
         );
         LogUtil.d('File downloaded: $path');
@@ -251,12 +258,13 @@ class HttpUtil {
     }
   }
 
-  static Future<Response<T>> _getResponse<T>(
+  static Future<Response<T>> getResponse<T>(
     FetchType fetchType, {
     required String url,
     Map<String, String>? queryParameters,
     dynamic? body,
     Map<String, dynamic>? headers,
+    String? contentType,
     ResponseType responseType = ResponseType.json,
     bool useTokenDio = false,
   }) async {
@@ -287,6 +295,7 @@ class HttpUtil {
         response = await _dio.head(
           replacedUri.toString(),
           options: Options(
+            contentType: contentType,
             followRedirects: true,
             headers: headers,
             receiveDataWhenStatusError: true,
@@ -300,6 +309,7 @@ class HttpUtil {
         response = await _dio.get(
           replacedUri.toString(),
           options: Options(
+            contentType: contentType,
             followRedirects: true,
             headers: headers,
             receiveDataWhenStatusError: true,
@@ -314,6 +324,7 @@ class HttpUtil {
           replacedUri.toString(),
           data: body,
           options: Options(
+            contentType: contentType,
             followRedirects: true,
             headers: headers,
             receiveDataWhenStatusError: true,
@@ -342,6 +353,7 @@ class HttpUtil {
           replacedUri.toString(),
           data: body,
           options: Options(
+            contentType: contentType,
             followRedirects: true,
             headers: headers,
             receiveDataWhenStatusError: true,
@@ -356,6 +368,7 @@ class HttpUtil {
           replacedUri.toString(),
           data: body,
           options: Options(
+            contentType: contentType,
             followRedirects: true,
             headers: headers,
             receiveDataWhenStatusError: true,
@@ -379,6 +392,9 @@ class HttpUtil {
   }
 
   static List<Cookie> convertWebViewCookies(List<web_view.Cookie>? cookies) {
+    if (!Platform.isAndroid && !Platform.isIOS) {
+      return const <Cookie>[];
+    }
     if (cookies?.isNotEmpty != true) {
       return const <Cookie>[];
     }
@@ -420,6 +436,9 @@ class HttpUtil {
   /// Initialize WebView's cookie with 'iPlanetDirectoryPro'.
   /// 启动时通过 Session 初始化 WebView 的 Cookie
   static Future<bool> initializeWebViewCookie() async {
+    if (!Platform.isAndroid && !Platform.isIOS) {
+      return false;
+    }
     final String url = 'http://sso.jmu.edu.cn/imapps/2190'
         '?sid=${UserAPI.loginModel!.sid}';
     try {
