@@ -22,6 +22,8 @@ PODS:
     - Flutter
   - photo_manager (0.0.1):
     - Flutter
+  - url_launcher (0.0.1):
+    - Flutter
 
 DEPENDENCIES:
   - device_info (from `/Users/alex/.pub-cache/hosted/pub.flutter-io.cn/device_info-2.0.0//ios/device_info.podspec`)
@@ -33,6 +35,7 @@ DEPENDENCIES:
   - path_provider (from `/Users/alex/.pub-cache/hosted/pub.flutter-io.cn/path_provider-2.0.1//ios/path_provider.podspec`)
   - permission_handler (from `/Users/alex/.pub-cache/hosted/pub.flutter-io.cn/permission_handler-6.1.1//ios/permission_handler.podspec`)
   - photo_manager (from `/Users/alex/.pub-cache/hosted/pub.flutter-io.cn/photo_manager-1.0.6//ios/photo_manager.podspec`)
+  - url_launcher (from `/Users/alex/.pub-cache/hosted/pub.flutter-io.cn/url_launcher-6.0.3//ios/url_launcher.podspec`)
 
 SPEC REPOS:
   https://mirrors.tuna.tsinghua.edu.cn/git/CocoaPods/Specs.git:
@@ -57,6 +60,8 @@ EXTERNAL SOURCES:
     :path: "/Users/alex/.pub-cache/hosted/pub.flutter-io.cn/permission_handler-6.1.1//ios/permission_handler.podspec"
   photo_manager:
     :path: "/Users/alex/.pub-cache/hosted/pub.flutter-io.cn/photo_manager-1.0.6//ios/photo_manager.podspec"
+  url_launcher:
+    :path: "/Users/alex/.pub-cache/hosted/pub.flutter-io.cn/url_launcher-6.0.3//ios/url_launcher.podspec"
 
 SPEC CHECKSUMS:
   device_info: d7d233b645a32c40dfdc212de5cf646ca482f175
@@ -69,7 +74,8 @@ SPEC CHECKSUMS:
   path_provider: abfe2b5c733d04e238b0d8691db0cfd63a27a93c
   permission_handler: ccb20a9fad0ee9b1314a52b70b76b473c5f8dab0
   photo_manager: f7c619c2cc8c2adb8d85c63363babac477de9c67
+  url_launcher: 6fef411d543ceb26efce54b05a0a40bfd74cbbef
 
-PODFILE CHECKSUM: 203f2d0a1e0d9e6b3037284fd9298e5792a01f84
+PODFILE CHECKSUM: df36cbdf17647f8e2c64a71c9722854d95713368
 
 COCOAPODS: 1.10.0
