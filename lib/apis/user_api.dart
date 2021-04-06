@@ -87,6 +87,9 @@ class UserAPI {
         return true;
       }
       return false;
+    } on DioError catch (dioError) {
+      showErrorToast('登录失败 (${dioError.response?.data['msg']})');
+      return false;
     } catch (e) {
       showErrorToast('登录失败 ($e)');
       return false;
