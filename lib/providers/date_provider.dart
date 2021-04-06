@@ -29,9 +29,9 @@ class DateProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  late int _difference;
+  int? _difference;
 
-  int get difference => _difference;
+  int get difference => _difference!;
 
   set difference(int value) {
     _difference = value;
@@ -64,16 +64,15 @@ class DateProvider extends ChangeNotifier {
   }
 
   Future<void> getCurrentWeek() async {
-    now = DateTime.now();
+    _now = DateTime.now();
     final Box<DateTime> box = Boxes.startWeekBox;
     try {
       DateTime? _day;
       _day = box.get('startDate');
-      final Response<Map<String, dynamic>> res = await HttpUtil.fetch(
+      final Map<String, dynamic> data = await HttpUtil.fetch(
         FetchType.get,
         url: API.firstDayOfTerm,
       );
-      final Map<String, dynamic> data = res.data!;
       final DateTime onlineDate = DateTime.parse(data['start'] as String);
       if (_day != onlineDate) {
         _day = onlineDate;
@@ -91,7 +90,7 @@ class DateProvider extends ChangeNotifier {
         _difference = _d;
       }
 
-      final int _w = -((_difference - 1) / 7).floor();
+      final int _w = -((difference - 1) / 7).floor();
       if (_currentWeek != _w) {
         _currentWeek = _w;
         notifyListeners();

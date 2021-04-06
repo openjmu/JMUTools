@@ -22,7 +22,10 @@ class _MainPageState extends State<MainPage> {
   void initState() {
     super.initState();
     if (!widget.isFromLogin) {
-      UserAPI.checkSessionValid();
+      UserAPI.checkSessionValid().whenComplete(() {
+        context.read<CoursesProvider>().initCourses();
+        context.read<ScoresProvider>().initScore();
+      });
     }
   }
 

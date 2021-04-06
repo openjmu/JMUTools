@@ -228,11 +228,7 @@ class HttpUtil {
           url,
           path,
           data: data,
-          options: Options(
-            headers: headers,
-            sendTimeout: 10000,
-            receiveTimeout: 10000,
-          ),
+          options: Options(headers: headers),
           onReceiveProgress: progressCallback,
         );
         LogUtil.d('File downloaded: $path');

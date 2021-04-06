@@ -5,6 +5,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -52,6 +53,9 @@ class ToolsAppState extends State<ToolsApp> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance!.addObserver(this);
+    SchedulerBinding.instance!.addPostFrameCallback((_) {
+      currentContext.read<DateProvider>().initCurrentWeek();
+    });
   }
 
   @override

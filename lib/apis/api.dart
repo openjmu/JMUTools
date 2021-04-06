@@ -16,6 +16,7 @@ import 'user_api.dart';
 class API {
   const API._();
 
+  static const String openjmuHost = 'openjmu.jmu.edu.cn';
   static const String oa99Host = 'https://oa99.jmu.edu.cn';
   static const String oap99Host = 'https://oap99.jmu.edu.cn';
   static const String labsHost = 'http://labs.jmu.edu.cn';

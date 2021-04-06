@@ -26,6 +26,8 @@ part '../providers/courses_provider.dart';
 
 part '../providers/date_provider.dart';
 
+part '../providers/scores_provider.dart';
+
 part '../providers/settings_provider.dart';
 
 part '../providers/themes_provider.dart';
@@ -39,6 +41,8 @@ List<SingleChildWidget> get globalProviders => _providers;
 final List<ChangeNotifierProvider<dynamic>> _providers =
     <ChangeNotifierProvider<dynamic>>[
   buildProvider<CoursesProvider>(CoursesProvider()),
+  buildProvider<DateProvider>(DateProvider()),
+  buildProvider<ScoresProvider>(ScoresProvider()),
   buildProvider<SettingsProvider>(SettingsProvider()),
   buildProvider<ThemesProvider>(ThemesProvider()),
 ];
