@@ -4,7 +4,7 @@
 ///
 import 'dart:io';
 
-import 'package:device_info/device_info.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:uuid/uuid.dart';
 
 import 'log_util.dart';
@@ -68,8 +68,9 @@ class DeviceUtil {
     if (SettingsUtil.getDeviceUUID() != null) {
       deviceUUID = SettingsUtil.getDeviceUUID()!;
     } else {
-      if (Platform.isIOS) {
-        deviceUUID = (deviceInfo as IosDeviceInfo).identifierForVendor;
+      final dynamic info = deviceInfo;
+      if (info is IosDeviceInfo && info.identifierForVendor != null) {
+        deviceUUID = info.identifierForVendor!;
       } else {
         deviceUUID = const Uuid().v4();
       }

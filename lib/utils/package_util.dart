@@ -3,7 +3,7 @@
 /// [Date] 2021-04-02 00:26
 ///
 import 'package:dartx/dartx.dart';
-import 'package:package_info/package_info.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 // import 'package:jmu_tools/exports/utils.dart';
 
