@@ -8,16 +8,13 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:dartx/dartx.dart';
-import 'package:dio/dio.dart' show DioError, DioErrorType, Response;
 import 'package:hive/hive.dart' show Box;
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 
-import 'package:jmu_tools/apis/api.dart';
-import 'package:jmu_tools/apis/course_api.dart';
-import 'package:jmu_tools/apis/user_api.dart';
-
+import 'apis.dart';
 import 'constants.dart';
+import 'extensions.dart';
 import 'models.dart';
 import 'utils.dart';
 import 'widgets.dart';

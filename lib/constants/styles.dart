@@ -40,6 +40,8 @@ class RadiusConstants {
 
   static BorderRadius get r15 => BorderRadius.circular(15.w);
 
+  static BorderRadius get r18 => BorderRadius.circular(18.w);
+
   static BorderRadius get r20 => BorderRadius.circular(20.w);
 
   static BorderRadius get r25 => BorderRadius.circular(25.w);

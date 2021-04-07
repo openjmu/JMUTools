@@ -1,5 +1,5 @@
 PODS:
-  - device_info (0.0.1):
+  - device_info_plus (0.0.1):
     - Flutter
   - Flutter (1.0.0)
   - flutter_inappwebview (0.0.1):
@@ -14,7 +14,7 @@ PODS:
   - open_file (0.0.1):
     - Flutter
   - OrderedSet (5.0.0)
-  - package_info (0.0.1):
+  - package_info_plus (0.4.5):
     - Flutter
   - path_provider (0.0.1):
     - Flutter
@@ -26,12 +26,12 @@ PODS:
     - Flutter
 
 DEPENDENCIES:
-  - device_info (from `/Users/alex/.pub-cache/hosted/pub.flutter-io.cn/device_info-2.0.0//ios/device_info.podspec`)
+  - device_info_plus (from `/Users/alex/.pub-cache/hosted/pub.flutter-io.cn/device_info_plus-1.0.0//ios/device_info_plus.podspec`)
   - Flutter (from `Flutter`)
-  - "flutter_inappwebview (from `/Users/alex/.pub-cache/hosted/pub.flutter-io.cn/flutter_inappwebview-5.3.0+1//ios/flutter_inappwebview.podspec`)"
+  - flutter_inappwebview (from `/Users/alex/.pub-cache/hosted/pub.flutter-io.cn/flutter_inappwebview-5.3.1//ios/flutter_inappwebview.podspec`)
   - flutter_local_notifications (from `/Users/alex/.pub-cache/hosted/pub.flutter-io.cn/flutter_local_notifications-5.0.0//ios/flutter_local_notifications.podspec`)
   - open_file (from `/Users/alex/.pub-cache/hosted/pub.flutter-io.cn/open_file-3.1.0//ios/open_file.podspec`)
-  - package_info (from `/Users/alex/.pub-cache/hosted/pub.flutter-io.cn/package_info-2.0.0//ios/package_info.podspec`)
+  - package_info_plus (from `/Users/alex/.pub-cache/hosted/pub.flutter-io.cn/package_info_plus-1.0.0//ios/package_info_plus.podspec`)
   - path_provider (from `/Users/alex/.pub-cache/hosted/pub.flutter-io.cn/path_provider-2.0.1//ios/path_provider.podspec`)
   - permission_handler (from `/Users/alex/.pub-cache/hosted/pub.flutter-io.cn/permission_handler-6.1.1//ios/permission_handler.podspec`)
   - photo_manager (from `/Users/alex/.pub-cache/hosted/pub.flutter-io.cn/photo_manager-1.0.6//ios/photo_manager.podspec`)
@@ -42,18 +42,18 @@ SPEC REPOS:
     - OrderedSet
 
 EXTERNAL SOURCES:
-  device_info:
-    :path: "/Users/alex/.pub-cache/hosted/pub.flutter-io.cn/device_info-2.0.0//ios/device_info.podspec"
+  device_info_plus:
+    :path: "/Users/alex/.pub-cache/hosted/pub.flutter-io.cn/device_info_plus-1.0.0//ios/device_info_plus.podspec"
   Flutter:
     :path: Flutter
   flutter_inappwebview:
-    :path: "/Users/alex/.pub-cache/hosted/pub.flutter-io.cn/flutter_inappwebview-5.3.0+1//ios/flutter_inappwebview.podspec"
+    :path: "/Users/alex/.pub-cache/hosted/pub.flutter-io.cn/flutter_inappwebview-5.3.1//ios/flutter_inappwebview.podspec"
   flutter_local_notifications:
     :path: "/Users/alex/.pub-cache/hosted/pub.flutter-io.cn/flutter_local_notifications-5.0.0//ios/flutter_local_notifications.podspec"
   open_file:
     :path: "/Users/alex/.pub-cache/hosted/pub.flutter-io.cn/open_file-3.1.0//ios/open_file.podspec"
-  package_info:
-    :path: "/Users/alex/.pub-cache/hosted/pub.flutter-io.cn/package_info-2.0.0//ios/package_info.podspec"
+  package_info_plus:
+    :path: "/Users/alex/.pub-cache/hosted/pub.flutter-io.cn/package_info_plus-1.0.0//ios/package_info_plus.podspec"
   path_provider:
     :path: "/Users/alex/.pub-cache/hosted/pub.flutter-io.cn/path_provider-2.0.1//ios/path_provider.podspec"
   permission_handler:
@@ -64,13 +64,13 @@ EXTERNAL SOURCES:
     :path: "/Users/alex/.pub-cache/hosted/pub.flutter-io.cn/url_launcher-6.0.3//ios/url_launcher.podspec"
 
 SPEC CHECKSUMS:
-  device_info: d7d233b645a32c40dfdc212de5cf646ca482f175
+  device_info_plus: e5c5da33f982a436e103237c0c85f9031142abed
   Flutter: 434fef37c0980e73bb6479ef766c45957d4b510c
   flutter_inappwebview: bfd58618f49dc62f2676de690fc6dcda1d6c3721
   flutter_local_notifications: 0c0b1ae97e741e1521e4c1629a459d04b9aec743
   open_file: 02eb5cb6b21264bd3a696876f5afbfb7ca4f4b7d
   OrderedSet: aaeb196f7fef5a9edf55d89760da9176ad40b93c
-  package_info: 873975fc26034f0b863a300ad47e7f1ac6c7ec62
+  package_info_plus: 6c92f08e1f853dc01228d6f553146438dafcd14e
   path_provider: abfe2b5c733d04e238b0d8691db0cfd63a27a93c
   permission_handler: ccb20a9fad0ee9b1314a52b70b76b473c5f8dab0
   photo_manager: f7c619c2cc8c2adb8d85c63363babac477de9c67

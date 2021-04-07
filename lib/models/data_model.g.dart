@@ -19,7 +19,7 @@ class CourseModelAdapter extends TypeAdapter<CourseModel> {
     return CourseModel(
       isCustom: fields[0] as bool,
       name: fields[1] as String,
-      time: fields[2] as String,
+      time: fields[2] as int,
       location: fields[3] as String?,
       className: fields[4] as String?,
       teacher: fields[5] as String?,

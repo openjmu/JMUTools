@@ -58,7 +58,7 @@ class CourseModel extends DataModel {
       _name = json['couName']?.toString() ?? '(空)';
     }
 
-    String _time;
+    int _time;
     if (isCustom) {
       _time = timeHandler(json['courseTime']);
     } else {
@@ -86,7 +86,7 @@ class CourseModel extends DataModel {
           json[isCustom ? 'courseDaytime' : 'couDayTime'].toString().toInt(),
       rawTime: json[isCustom ? 'courseTime' : 'coudeTime'].toString(),
     );
-    uniqueColor(_c, CourseAPI.randomCourseColor());
+    _c.uniqueColor(CourseAPI.randomCourseColor());
     return _c;
   }
 
@@ -95,7 +95,7 @@ class CourseModel extends DataModel {
   @HiveField(1)
   final String name;
   @HiveField(2)
-  final String time;
+  final int time;
   @HiveField(3)
   final String? location;
   @HiveField(4)
@@ -119,93 +119,6 @@ class CourseModel extends DataModel {
   @HiveField(13)
   final String rawTime;
   Color? color;
-
-  /// Whether we should use raw data to modify.
-  bool get shouldUseRaw => day != rawDay || time != rawTime;
-
-  String get weekDurationString => '$startWeek-$endWeek'
-      '${oddEven == 1 ? '单' : oddEven == 2 ? '双' : ''}周';
-
-  static int judgeOddEven(Map<String, dynamic> json) {
-    int _oddEven = 0;
-    final List<String> _split = (json['allWeek'] as String).split(' ');
-    if (_split.length > 1) {
-      switch (_split[1]) {
-        case '单周':
-          _oddEven = 1;
-          break;
-        case '双周':
-          _oddEven = 2;
-          break;
-      }
-    }
-    return _oddEven;
-  }
-
-  static void uniqueColor(CourseModel course, Color color) {
-    final CourseColor? _courseColor =
-        CourseAPI.coursesUniqueColor.firstWhereOrNull(
-      (CourseColor color) => color.name == course.name,
-    );
-    if (_courseColor != null) {
-      course.color = _courseColor.color;
-    } else {
-      final List<CourseColor> courses = CourseAPI.coursesUniqueColor
-          .where((CourseColor c) => c.color == color)
-          .toList();
-
-      if (courses.isNotEmpty) {
-        uniqueColor(course, CourseAPI.randomCourseColor());
-      } else {
-        course.color = color;
-        CourseAPI.coursesUniqueColor.add(
-          CourseColor(name: course.name, color: color),
-        );
-      }
-    }
-  }
-
-  /// Convert time due to inconsistent data.
-  static String timeHandler(dynamic time) {
-    assert(time != null, 'Time of course cannot be null.');
-    String courseTime = '0';
-    switch (time.toString()) {
-      case '1':
-      case '2':
-      case '12':
-      case '23':
-        courseTime = '1';
-        break;
-      case '3':
-      case '4':
-      case '34':
-      case '45':
-        courseTime = '3';
-        break;
-      case '5':
-      case '6':
-      case '56':
-      case '67':
-        courseTime = '5';
-        break;
-      case '7':
-      case '8':
-      case '78':
-      case '89':
-        courseTime = '7';
-        break;
-      case '90':
-      case '911':
-      case '9':
-      case '10':
-        courseTime = '9';
-        break;
-      case '11':
-        courseTime = '11';
-        break;
-    }
-    return courseTime;
-  }
 
   @override
   Map<String, dynamic> toJson() {
@@ -240,6 +153,167 @@ class CourseModel extends DataModel {
         isEleven,
         oddEven,
       ];
+
+  /// 根据数据判断课程的单双周
+  static int judgeOddEven(Map<String, dynamic> json) {
+    int _oddEven = 0;
+    final List<String> _split = (json['allWeek'] as String).split(' ');
+    if (_split.length > 1) {
+      switch (_split[1]) {
+        case '单周':
+          _oddEven = 1;
+          break;
+        case '双周':
+          _oddEven = 2;
+          break;
+      }
+    }
+    return _oddEven;
+  }
+
+  /// 将各种各样的上课时间转换为指定的课时
+  ///
+  /// 你绝对想象不到课程表的数据有多乱 :)
+  static int timeHandler(dynamic time) {
+    assert(time != null, 'Time of course cannot be null.');
+    int courseTime = 0;
+    switch (time.toString()) {
+      case '1':
+      case '2':
+      case '12':
+      case '23':
+        courseTime = 1;
+        break;
+      case '3':
+      case '4':
+      case '34':
+      case '45':
+        courseTime = 3;
+        break;
+      case '5':
+      case '6':
+      case '56':
+      case '67':
+        courseTime = 5;
+        break;
+      case '7':
+      case '8':
+      case '78':
+      case '89':
+        courseTime = 7;
+        break;
+      case '90':
+      case '911':
+      case '9':
+      case '10':
+        courseTime = 9;
+        break;
+      case '11':
+        courseTime = 11;
+        break;
+    }
+    return courseTime;
+  }
+
+  /// 生成唯一的课程颜色
+  void uniqueColor(Color color) {
+    final CourseColor? _courseColor =
+        CourseAPI.coursesUniqueColor.firstWhereOrNull(
+      (CourseColor color) => color.name == name,
+    );
+    if (_courseColor != null) {
+      color = _courseColor.color;
+    } else {
+      final List<CourseColor> courses = CourseAPI.coursesUniqueColor
+          .where((CourseColor c) => c.color == color)
+          .toList();
+
+      if (courses.isNotEmpty) {
+        uniqueColor(CourseAPI.randomCourseColor());
+      } else {
+        color = color;
+        CourseAPI.coursesUniqueColor.add(
+          CourseColor(name: name, color: color),
+        );
+      }
+    }
+  }
+
+  /// 是否需要使用原始数据进行编辑
+  ///
+  /// 某些课程数据十分诡异，所以我们会转换成自己的数据，操作时仍然需要利用源数据。
+  bool get shouldUseRaw => day != rawDay || time.toString() != rawTime;
+
+  String get weekDurationString => '$startWeek-$endWeek'
+      '${oddEven == 1 ? '单' : oddEven == 2 ? '双' : ''}周';
+
+  String get timeString {
+    String _content = '';
+    if (time > 8) {
+      _content += '晚上';
+    } else if (time > 4) {
+      _content += '下午';
+    } else {
+      _content += '上午';
+    }
+    _content += _getCourseStartTime(time);
+    _content += ' - ';
+    _content += _getCourseEndTime(time);
+    return _content;
+  }
+
+  /// 是否准备上课
+  bool get inReadyTime {
+    final double timeNow = _timeToDouble(TimeOfDay.now());
+    final List<TimeOfDay> times = _courseTime[time]!;
+    final double start = _timeToDouble(times[0]);
+    return start - timeNow <= 0.5 && start - timeNow > 0;
+  }
+
+  /// 是否正在上课
+  bool get inCurrentTime {
+    final double timeNow = _timeToDouble(TimeOfDay.now()) - (1 / 60);
+    final List<TimeOfDay> times = _courseTime[time]!;
+    final double start = _timeToDouble(times[0]);
+    double end = _timeToDouble(times[1]) - (1 / 60);
+    if (isEleven) {
+      end = _timeToDouble(_courseTime[11]![1]);
+    }
+    return start <= timeNow && end >= timeNow;
+  }
+
+  /// 是否已经下课
+  bool get isOver {
+    final TimeOfDay overTime = _courseTime[time + 1]![1];
+    return TimeOfDay.now().isAfter(overTime);
+  }
+
+  /// 是否为当日课程
+  bool inCurrentDay([int? weekday]) => day == (weekday ?? currentTime.weekday);
+
+  /// 课程是否属于当前周
+  ///
+  /// 自定义课程一定为当前周，因为其没有周数限制。
+  bool inCurrentWeek([int? currentWeek]) {
+    if (isCustom) {
+      return true;
+    }
+    final DateProvider provider = currentContext.read<DateProvider>();
+    final int week = currentWeek ?? provider.currentWeek;
+    bool result = false;
+    final bool inRange = week >= startWeek! && week <= endWeek!;
+    final bool isOddEven = oddEven != 0;
+    if (isOddEven) {
+      if (oddEven == 1) {
+        result = inRange && week.isOdd;
+      } else if (oddEven == 2) {
+        result = inRange && week.isEven;
+      }
+    } else {
+      result = inRange;
+    }
+    return result;
+  }
 }
 
 @immutable
@@ -262,3 +336,51 @@ class CourseColor {
   @override
   String toString() => 'CourseColor ($name, $color)';
 }
+
+String _getCourseStartTime(int courseIndex) {
+  return _getCourseTimeString(_courseTime[courseIndex]![0]);
+}
+
+String _getCourseEndTime(int courseIndex) {
+  return _getCourseTimeString(_courseTime[courseIndex]![1]);
+}
+
+String _getCourseTimeString(TimeOfDay time) {
+  final String hour = time.hour.toString();
+  final String minute = '${time.minute < 10 ? '0' : ''}${time.minute}';
+  return '$hour:$minute';
+}
+
+Map<int, List<TimeOfDay>> _courseTime = <int, List<TimeOfDay>>{
+  1: <TimeOfDay>[_time(08, 00), _time(08, 45)],
+  2: <TimeOfDay>[_time(08, 50), _time(09, 35)],
+  3: <TimeOfDay>[_time(10, 05), _time(10, 50)],
+  4: <TimeOfDay>[_time(10, 55), _time(11, 40)],
+  5: <TimeOfDay>[_time(14, 00), _time(14, 45)],
+  6: <TimeOfDay>[_time(14, 50), _time(15, 35)],
+  7: <TimeOfDay>[_time(15, 55), _time(16, 40)],
+  8: <TimeOfDay>[_time(16, 45), _time(17, 30)],
+  9: <TimeOfDay>[_time(19, 00), _time(19, 45)],
+  10: <TimeOfDay>[_time(19, 50), _time(20, 35)],
+  11: <TimeOfDay>[_time(20, 40), _time(21, 25)],
+  12: <TimeOfDay>[_time(21, 30), _time(22, 15)],
+};
+
+Map<String, String> _courseTimeChinese = <String, String>{
+  '1': '一二节',
+  '12': '一二节',
+  '3': '三四节',
+  '34': '三四节',
+  '5': '五六节',
+  '56': '五六节',
+  '7': '七八节',
+  '78': '七八节',
+  '9': '九十节',
+  '90': '九十节',
+  '11': '十一节',
+  '911': '九十十一节',
+};
+
+TimeOfDay _time(int hour, int minute) => TimeOfDay(hour: hour, minute: minute);
+
+double _timeToDouble(TimeOfDay time) => time.hour + time.minute / 60.0;

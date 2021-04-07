@@ -38,16 +38,9 @@ class DateProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  late DateTime _now;
-
-  DateTime get now => _now;
-
-  set now(DateTime value) {
-    if (value == _now) {
-      return;
-    }
-    _now = value;
-    notifyListeners();
+  String get dateString {
+    final DateTime now = currentTime;
+    return '${now.mDddd}，第$_currentWeek周';
   }
 
   Future<void> initCurrentWeek() async {
@@ -64,7 +57,6 @@ class DateProvider extends ChangeNotifier {
   }
 
   Future<void> getCurrentWeek() async {
-    _now = DateTime.now();
     final Box<DateTime> box = Boxes.startWeekBox;
     try {
       DateTime? _day;
@@ -85,7 +77,7 @@ class DateProvider extends ChangeNotifier {
         }
       }
 
-      final int _d = _startDate!.difference(now).inDays;
+      final int _d = _startDate!.difference(currentTime).inDays;
       if (_difference != _d) {
         _difference = _d;
       }
@@ -109,13 +101,3 @@ class DateProvider extends ChangeNotifier {
     });
   }
 }
-
-const Map<int, String> shortWeekdays = <int, String>{
-  1: '周一',
-  2: '周二',
-  3: '周三',
-  4: '周四',
-  5: '周五',
-  6: '周六',
-  7: '周日',
-};

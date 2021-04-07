@@ -20,6 +20,53 @@ class CoursesProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// 获取今日的课程
+  List<CourseModel> get coursesToday {
+    if (_courses == null) {
+      return <CourseModel>[];
+    }
+    final Map<dynamic, dynamic> _cs = _courses![currentTime.weekday]!;
+    final List<List<dynamic>> _list = _cs.values.toList().cast<List<dynamic>>();
+    final List<CourseModel> result = <CourseModel>[];
+    for (final List<dynamic> list in _list) {
+      result.addAll(
+        list
+            .whereType<CourseModel>()
+            .whereNot((CourseModel c) => c.isCustom)
+            .where((CourseModel c) => c.inCurrentDay() && c.inCurrentWeek()),
+      );
+    }
+    return result.cast<CourseModel>();
+  }
+
+  /// 获取明日的课程
+  List<CourseModel> get coursesTomorrow {
+    if (_courses == null) {
+      return <CourseModel>[];
+    }
+    final DateTime tomorrow = currentTime + 1.days;
+    int? currentWeek;
+    if (tomorrow.weekday == 1) {
+      currentWeek = currentContext.read<DateProvider>().currentWeek + 1;
+    }
+    final Map<dynamic, dynamic> _cs = _courses![tomorrow.weekday]!;
+    final List<List<dynamic>> _list = _cs.values.toList().cast<List<dynamic>>();
+    final List<CourseModel> result = <CourseModel>[];
+    for (final List<dynamic> list in _list) {
+      result.addAll(
+        list
+            .whereType<CourseModel>()
+            .whereNot((CourseModel c) => c.isCustom)
+            .where(
+              (CourseModel c) =>
+                  c.inCurrentDay(tomorrow.weekday) &&
+                  c.inCurrentWeek(currentWeek),
+            ),
+      );
+    }
+    return result.cast<CourseModel>();
+  }
+
   String? _remark;
 
   String? get remark => _remark;
@@ -85,7 +132,7 @@ class CoursesProvider extends ChangeNotifier {
           final List<CourseModel> courses = list.cast<CourseModel>();
           for (final CourseModel course in courses) {
             if (course.color == null) {
-              CourseModel.uniqueColor(course, CourseAPI.randomCourseColor());
+              course.uniqueColor(CourseAPI.randomCourseColor());
             }
           }
         }

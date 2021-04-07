@@ -2,19 +2,21 @@
 /// [Author] Alex (https://github.com/AlexV525)
 /// [Date] 4/1/21 4:46 PM
 ///
+import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import 'package:dartx/dartx.dart';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
 import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:provider/provider.dart';
 
 import 'package:jmu_tools/apis/course_api.dart';
 import 'package:jmu_tools/apis/user_api.dart';
+import 'package:jmu_tools/constants/instances.dart';
 import 'package:jmu_tools/constants/boxes.dart';
+import 'package:jmu_tools/exports/providers.dart';
 import 'package:jmu_tools/exports/utils.dart';
+import 'package:jmu_tools/extensions/date_time_extension.dart';
 
 part 'data_model.d.dart';
 
