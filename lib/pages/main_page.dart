@@ -40,14 +40,6 @@ class _MainPageState extends State<MainPage> {
           children: <Widget>[
             VGap(80.w),
             ThemeTextButton(
-              text: 'checkSessionValid',
-              onPressed: () => UserAPI.checkSessionValid(),
-            ),
-            ThemeTextButton(
-              text: 'getTicket',
-              onPressed: () => UserAPI.updateSession(),
-            ),
-            ThemeTextButton(
               text: 'updateUserInfo',
               onPressed: () => UserAPI.updateUserInfo(),
             ),
@@ -58,11 +50,6 @@ class _MainPageState extends State<MainPage> {
             ThemeTextButton(
               text: 'clearBoxes',
               onPressed: () => Boxes.clearAllBoxes(context),
-            ),
-            ThemeTextButton(
-              text: 'test',
-              onPressed: () =>
-                  HttpUtil.fetch<void>(FetchType.post, url: API.logout),
             ),
             Text(context.watch<CoursesProvider>().courses?.toString() ?? ''),
             Text(context.watch<ScoresProvider>().scores?.toString() ?? ''),

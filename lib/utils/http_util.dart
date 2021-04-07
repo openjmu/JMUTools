@@ -14,6 +14,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart' as web_view
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 
+import 'package:jmu_tools/apis/api.dart';
 import 'package:jmu_tools/apis/user_api.dart';
 import 'package:jmu_tools/exports/models.dart';
 import 'package:jmu_tools/exports/utils.dart';
@@ -34,6 +35,7 @@ class HttpUtil {
       connectTimeout: 10000,
       sendTimeout: 10000,
       receiveTimeout: 10000,
+      receiveDataWhenStatusError: true,
       followRedirects: true,
     ),
   );
@@ -42,6 +44,7 @@ class HttpUtil {
       connectTimeout: 10000,
       sendTimeout: 10000,
       receiveTimeout: 10000,
+      receiveDataWhenStatusError: true,
       followRedirects: true,
     ),
   );
@@ -54,6 +57,7 @@ class HttpUtil {
       web_view.CookieManager.instance();
 
   static late final Directory _tempDir;
+  static late bool shouldUseWebVPN;
 
   static bool isLogEnabled = true;
 
@@ -72,6 +76,8 @@ class HttpUtil {
       dio.interceptors.add(LoggingInterceptor());
       tokenDio.interceptors.add(LoggingInterceptor());
     }
+
+    await testClassKit();
   }
 
   static Future<void> initCookieManagement() async {
@@ -296,12 +302,8 @@ class HttpUtil {
           replacedUri.toString(),
           options: Options(
             contentType: contentType,
-            followRedirects: true,
             headers: headers,
-            receiveDataWhenStatusError: true,
             responseType: responseType,
-            sendTimeout: 10000,
-            receiveTimeout: 10000,
           ),
         );
         break;
@@ -310,12 +312,8 @@ class HttpUtil {
           replacedUri.toString(),
           options: Options(
             contentType: contentType,
-            followRedirects: true,
             headers: headers,
-            receiveDataWhenStatusError: true,
             responseType: responseType,
-            sendTimeout: 10000,
-            receiveTimeout: 10000,
           ),
         );
         break;
@@ -325,12 +323,8 @@ class HttpUtil {
           data: body,
           options: Options(
             contentType: contentType,
-            followRedirects: true,
             headers: headers,
-            receiveDataWhenStatusError: true,
             responseType: responseType,
-            sendTimeout: 10000,
-            receiveTimeout: 10000,
           ),
         );
         break;
@@ -339,12 +333,9 @@ class HttpUtil {
           replacedUri.toString(),
           data: body,
           options: Options(
-            followRedirects: true,
+            contentType: contentType,
             headers: headers,
-            receiveDataWhenStatusError: true,
             responseType: responseType,
-            sendTimeout: 10000,
-            receiveTimeout: 10000,
           ),
         );
         break;
@@ -354,12 +345,8 @@ class HttpUtil {
           data: body,
           options: Options(
             contentType: contentType,
-            followRedirects: true,
             headers: headers,
-            receiveDataWhenStatusError: true,
             responseType: responseType,
-            sendTimeout: 10000,
-            receiveTimeout: 10000,
           ),
         );
         break;
@@ -369,12 +356,8 @@ class HttpUtil {
           data: body,
           options: Options(
             contentType: contentType,
-            followRedirects: true,
             headers: headers,
-            receiveDataWhenStatusError: true,
             responseType: responseType,
-            sendTimeout: 10000,
-            receiveTimeout: 10000,
           ),
         );
         break;
@@ -488,6 +471,28 @@ class HttpUtil {
         if (UserAPI.loginModel?.sid != null)
           Cookie('OAPSID', UserAPI.loginModel!.sid)..httpOnly = false,
       ];
+
+  /// 通过测试「课堂助理」应用，判断是否需要使用 WebVPN。
+  static Future<void> testClassKit() async {
+    try {
+      await fetch<String>(
+        FetchType.get,
+        url: API.classKitHost,
+        contentType: 'text/html;charset=utf-8',
+        useTokenDio: true,
+      );
+      shouldUseWebVPN = false;
+    } on DioError catch (dioError) {
+      if (dioError.response?.statusCode == HttpStatus.forbidden) {
+        shouldUseWebVPN = true;
+        return;
+      }
+      shouldUseWebVPN = false;
+    } catch (e) {
+      LogUtil.e('Error when testing classKit: $e');
+      shouldUseWebVPN = false;
+    }
+  }
 
   static dynamic Function(HttpClient client) get _clientCreate {
     return (HttpClient client) {

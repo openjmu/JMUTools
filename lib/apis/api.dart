@@ -21,6 +21,7 @@ class API {
   static const String oap99Host = 'https://oap99.jmu.edu.cn';
   static const String labsHost = 'http://labs.jmu.edu.cn';
   static const String webVpnHost = 'https://webvpn.jmu.edu.cn';
+  static const String classKitHost = 'https://classkit.jmu.edu.cn';
 
   static const List<String> jmuHosts = <String>[
     oa99Host,

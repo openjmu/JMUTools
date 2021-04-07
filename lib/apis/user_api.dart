@@ -62,7 +62,7 @@ class UserAPI {
       blowfish: blowfish,
     );
     try {
-      if (!await webVpnLogin(username, password)) {
+      if (HttpUtil.shouldUseWebVPN && !await webVpnLogin(username, password)) {
         showToast('登录失败');
         return false;
       }

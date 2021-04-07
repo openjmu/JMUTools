@@ -118,11 +118,11 @@ class CoursesProvider extends ChangeNotifier {
     return courses;
   }
 
-  Future<void> updateCourses({bool isOuterNetwork = false}) async {
+  Future<void> updateCourses() async {
     final DateProvider dateProvider =
         Provider.of<DateProvider>(currentContext, listen: false);
     try {
-      if (isOuterNetwork) {
+      if (HttpUtil.shouldUseWebVPN) {
         final List<Map<String, dynamic>> responses =
             await Future.wait<Map<String, dynamic>>(
           <Future<Map<String, dynamic>>>[
@@ -160,20 +160,9 @@ class CoursesProvider extends ChangeNotifier {
         _showError = false;
       }
       notifyListeners();
-    } on DioError catch (dioError) {
-      if (!isOuterNetwork &&
-          (dioError.response?.statusCode == HttpStatus.forbidden ||
-              dioError.type == DioErrorType.connectTimeout)) {
-        updateCourses(isOuterNetwork: true);
-      } else {
-        _showError = true;
-        _firstLoaded = true;
-        _isOuterError = true;
-        notifyListeners();
-      }
     } catch (e) {
       _showError = !_hasCourses; // 有课则不显示错误
-      if (isOuterNetwork && e is FormatException) {
+      if (e is FormatException) {
         LogUtil.d('Displaying courses from cache...');
         _isOuterError = true;
       } else {

@@ -15,7 +15,8 @@ part of 'data_model.dart';
 /// [rawDay] 原始天数 [rawTime] 原始课时
 /// 以上两项用于编辑课程信息。由于课程表的数据错乱，需要保存原始数据，否则会造成编辑错误。
 @HiveType(typeId: HiveAdapterTypeIds.course)
-class CourseModel {
+// ignore: must_be_immutable
+class CourseModel extends DataModel {
   CourseModel({
     this.isCustom = false,
     required this.name,
@@ -85,41 +86,38 @@ class CourseModel {
           json[isCustom ? 'courseDaytime' : 'couDayTime'].toString().toInt(),
       rawTime: json[isCustom ? 'courseTime' : 'coudeTime'].toString(),
     );
-    if (_c.isEleven && _c.time == '90') {
-      _c.time = '911';
-    }
     uniqueColor(_c, CourseAPI.randomCourseColor());
     return _c;
   }
 
   @HiveField(0)
-  bool isCustom;
+  final bool isCustom;
   @HiveField(1)
-  String name;
+  final String name;
   @HiveField(2)
-  String time;
+  final String time;
   @HiveField(3)
-  String? location;
+  final String? location;
   @HiveField(4)
-  String? className;
+  final String? className;
   @HiveField(5)
-  String? teacher;
+  final String? teacher;
   @HiveField(6)
-  int day;
+  final int day;
   @HiveField(7)
-  int? startWeek;
+  final int? startWeek;
   @HiveField(8)
-  int? endWeek;
+  final int? endWeek;
   @HiveField(9)
-  int? oddEven;
+  final int? oddEven;
   @HiveField(10)
-  List<String>? classesName;
+  final List<String>? classesName;
   @HiveField(11)
-  bool isEleven;
+  final bool isEleven;
   @HiveField(12)
-  int rawDay;
+  final int rawDay;
   @HiveField(13)
-  String rawTime;
+  final String rawTime;
   Color? color;
 
   /// Whether we should use raw data to modify.
@@ -209,6 +207,7 @@ class CourseModel {
     return courseTime;
   }
 
+  @override
   Map<String, dynamic> toJson() {
     return <String, dynamic>{
       'isCustom': isCustom,
@@ -225,6 +224,22 @@ class CourseModel {
       'oddEven': oddEven,
     };
   }
+
+  @override
+  List<Object?> get props => <Object?>[
+        isCustom,
+        name,
+        time,
+        location,
+        className,
+        teacher,
+        day,
+        startWeek,
+        endWeek,
+        classesName,
+        isEleven,
+        oddEven,
+      ];
 }
 
 @immutable
