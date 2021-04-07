@@ -30,24 +30,8 @@ class HttpUtil {
 
   static const bool shouldLogRequest = false;
 
-  static final Dio dio = Dio(
-    BaseOptions(
-      connectTimeout: 10000,
-      sendTimeout: 10000,
-      receiveTimeout: 10000,
-      receiveDataWhenStatusError: true,
-      followRedirects: true,
-    ),
-  );
-  static final Dio tokenDio = Dio(
-    BaseOptions(
-      connectTimeout: 10000,
-      sendTimeout: 10000,
-      receiveTimeout: 10000,
-      receiveDataWhenStatusError: true,
-      followRedirects: true,
-    ),
-  );
+  static final Dio dio = Dio(_options);
+  static final Dio tokenDio = Dio(_options);
 
   static late final PersistCookieJar cookieJar;
   static late final PersistCookieJar tokenCookieJar;
@@ -492,6 +476,16 @@ class HttpUtil {
       LogUtil.e('Error when testing classKit: $e');
       shouldUseWebVPN = false;
     }
+  }
+
+  static BaseOptions get _options {
+    return BaseOptions(
+      connectTimeout: 10000,
+      sendTimeout: 10000,
+      receiveTimeout: 10000,
+      receiveDataWhenStatusError: true,
+      followRedirects: true,
+    );
   }
 
   static dynamic Function(HttpClient client) get _clientCreate {
