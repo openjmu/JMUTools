@@ -169,35 +169,22 @@ class CoursesProvider extends ChangeNotifier {
     final DateProvider dateProvider =
         Provider.of<DateProvider>(currentContext, listen: false);
     try {
-      if (HttpUtil.shouldUseWebVPN) {
-        final List<Map<String, dynamic>> responses =
-            await Future.wait<Map<String, dynamic>>(
-          <Future<Map<String, dynamic>>>[
-            CourseAPI.getCourseWithVPN(),
-            CourseAPI.getRemarkWithVPN(),
-          ],
-        );
-        await Future.wait(
-          <Future<void>>[
-            courseResponseHandler(responses[0]),
-            remarkResponseHandler(responses[1]),
-          ],
-        );
-      } else {
-        final List<String> responses = await Future.wait<String>(
-          <Future<String>>[CourseAPI.getCourse(), CourseAPI.getRemark()],
-        );
-        await Future.wait(
-          <Future<void>>[
-            courseResponseHandler(
-              jsonDecode(responses[0]) as Map<String, dynamic>,
-            ),
-            remarkResponseHandler(
-              jsonDecode(responses[1]) as Map<String, dynamic>,
-            ),
-          ],
-        );
-      }
+      final List<String> responses = await Future.wait<String>(
+        <Future<String>>[
+          CourseAPI.getCourse(useVPN: HttpUtil.shouldUseWebVPN),
+          CourseAPI.getRemark(useVPN: HttpUtil.shouldUseWebVPN),
+        ],
+      );
+      await Future.wait(
+        <Future<void>>[
+          courseResponseHandler(
+            jsonDecode(responses[0]) as Map<String, dynamic>,
+          ),
+          remarkResponseHandler(
+            jsonDecode(responses[1]) as Map<String, dynamic>,
+          ),
+        ],
+      );
       if (!_firstLoaded) {
         if (dateProvider.currentWeek != 0) {
           _firstLoaded = true;

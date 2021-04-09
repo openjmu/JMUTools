@@ -21,34 +21,22 @@ class CourseAPI {
 
   static Set<CourseColor> coursesUniqueColor = <CourseColor>{};
 
-  static Future<String> getCourse() {
+  static Future<String> getCourse({bool useVPN = false}) {
     return HttpUtil.fetch(
       FetchType.get,
-      url: API.courseScheduleCourses,
+      url: useVPN
+          ? API.replaceWithWebVPN(API.courseScheduleCourses)
+          : API.courseScheduleCourses,
       queryParameters: <String, String>{'sid': UserAPI.loginModel!.sid},
     );
   }
 
-  static Future<Map<String, dynamic>> getCourseWithVPN() {
+  static Future<String> getRemark({bool useVPN = false}) {
     return HttpUtil.fetch(
       FetchType.get,
-      url: API.replaceWithWebVPN(API.courseScheduleCourses),
-      queryParameters: <String, String>{'sid': UserAPI.loginModel!.sid},
-    );
-  }
-
-  static Future<String> getRemark() {
-    return HttpUtil.fetch(
-      FetchType.get,
-      url: API.courseScheduleClassRemark,
-      queryParameters: <String, String>{'sid': UserAPI.loginModel!.sid},
-    );
-  }
-
-  static Future<Map<String, dynamic>> getRemarkWithVPN() {
-    return HttpUtil.fetch(
-      FetchType.get,
-      url: API.replaceWithWebVPN(API.courseScheduleClassRemark),
+      url: useVPN
+          ? API.replaceWithWebVPN(API.courseScheduleClassRemark)
+          : API.courseScheduleClassRemark,
       queryParameters: <String, String>{'sid': UserAPI.loginModel!.sid},
     );
   }

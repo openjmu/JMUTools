@@ -61,11 +61,17 @@ class _MainPageState extends State<MainPage> {
             children: <Widget>[
               Text(context.watch<DateProvider>().dateString),
               VGap(12.w),
-              Text(
-                '课程表',
-                style: context.textTheme.headline6!.copyWith(
-                  fontSize: 24.sp,
-                ),
+              Row(
+                children: <Widget>[
+                  Text(
+                    '课程表',
+                    style: context.textTheme.headline6!.copyWith(
+                      fontSize: 24.sp,
+                    ),
+                  ),
+                  const Spacer(),
+                  ThemeTextButton(text: '退出登录', onPressed: UserAPI.logout),
+                ],
               ),
               Expanded(
                 child: ListView(
