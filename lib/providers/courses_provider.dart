@@ -121,9 +121,7 @@ class CoursesProvider extends ChangeNotifier {
         _courseBox.get(UserAPI.user.uid)?.cast<int, Map<dynamic, dynamic>>();
     _remark = _courseRemarkBox.get(UserAPI.user.uid);
     _hasCourses = _courses != null;
-    if (_courses == null) {
-      _courses = resetCourses();
-    } else {
+    if (_hasCourses) {
       for (final Map<dynamic, dynamic> _map in _courses!.values) {
         final Map<int, List<dynamic>> map = _map.cast<int, List<dynamic>>();
         final List<List<dynamic>> lists =
@@ -138,6 +136,8 @@ class CoursesProvider extends ChangeNotifier {
         }
       }
       firstLoaded = true;
+    } else {
+      _courses = resetCourses();
     }
     updateCourses();
   }
@@ -175,11 +175,17 @@ class CoursesProvider extends ChangeNotifier {
           CourseAPI.getRemark(useVPN: HttpUtil.shouldUseWebVPN),
         ],
       );
+      final Map<String, dynamic> courseData =
+          jsonDecode(responses[0]) as Map<String, dynamic>;
+      if (courseData['courses'] == <dynamic>[] &&
+          courseData['othCase'] == null) {
+        LogUtil.w('Courses may return invalid value, retry...');
+        updateCourses();
+        return;
+      }
       await Future.wait(
         <Future<void>>[
-          courseResponseHandler(
-            jsonDecode(responses[0]) as Map<String, dynamic>,
-          ),
+          courseResponseHandler(courseData),
           remarkResponseHandler(
             jsonDecode(responses[1]) as Map<String, dynamic>,
           ),
