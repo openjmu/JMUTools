@@ -212,20 +212,23 @@ class CoursesProvider extends ChangeNotifier {
 
   Future<void> courseResponseHandler(Map<String, dynamic> data) async {
     final List<dynamic> _courseList = data['courses'] as List<dynamic>;
-    final List<dynamic> _customCourseList = data['othCase'] as List<dynamic>;
+    final List<dynamic>? _customCourseList = data['othCase'] as List<dynamic>?;
     Map<int, Map<int, dynamic>> _s;
     _s = resetCourses();
-    _hasCourses = _courseList.isNotEmpty || _customCourseList.isNotEmpty;
+    _hasCourses =
+        _courseList.isNotEmpty || _customCourseList?.isNotEmpty == true;
     for (final dynamic course in _courseList) {
       final CourseModel _c =
           CourseModel.fromJson(course as Map<String, dynamic>);
       addCourse(_c, _s);
     }
-    for (final dynamic _course in _customCourseList) {
-      final Map<String, dynamic> course = _course as Map<String, dynamic>;
-      if ((course['content'] as String?)?.trim().isNotEmpty != true) {
-        final CourseModel _c = CourseModel.fromJson(course, isCustom: true);
-        addCourse(_c, _s);
+    if (_customCourseList != null) {
+      for (final dynamic _course in _customCourseList) {
+        final Map<String, dynamic> course = _course as Map<String, dynamic>;
+        if ((course['content'] as String?)?.trim().isNotEmpty != true) {
+          final CourseModel _c = CourseModel.fromJson(course, isCustom: true);
+          addCourse(_c, _s);
+        }
       }
     }
     _courses = _s;
