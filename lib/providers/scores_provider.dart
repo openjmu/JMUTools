@@ -154,7 +154,7 @@ class ScoresProvider extends ChangeNotifier {
     } catch (_) {}
   }
 
-  void tryDecodeScores() {
+  Future<void> tryDecodeScores() async {
     try {
       final Map<dynamic, dynamic> response =
           jsonDecode(_scoreData)['obj'] as Map<dynamic, dynamic>;
@@ -186,6 +186,10 @@ class ScoresProvider extends ChangeNotifier {
       );
     } catch (e) {
       LogUtil.e('Decode scores response error: $e');
+      _socket?.destroy();
+      _rawData.clear();
+      _scoreData = '';
+      initSocket();
     }
   }
 
