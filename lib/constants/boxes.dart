@@ -16,6 +16,8 @@ const String hiveBoxPrefix = 'jmuTools';
 class Boxes {
   const Boxes._();
 
+  static late final Box<UPModel> upBox;
+
   /// 登录信息保存表
   static late final Box<LoginModel> loginBox;
 
@@ -45,12 +47,14 @@ class Boxes {
 
   static Future<void> openBoxes() async {
     Hive
+      ..registerAdapter(UPModelAdapter())
       ..registerAdapter(LoginModelAdapter())
       ..registerAdapter(UserModelAdapter())
       ..registerAdapter(CourseModelAdapter())
       ..registerAdapter(ScoreModelAdapter())
       ..registerAdapter(WebAppModelAdapter());
 
+    upBox = await Hive.openBox('${hiveBoxPrefix}_up');
     loginBox = await Hive.openBox('${hiveBoxPrefix}_login');
     userBox = await Hive.openBox('${hiveBoxPrefix}_user');
     coursesBox = await Hive.openBox('${hiveBoxPrefix}_user_courses');
@@ -105,6 +109,7 @@ class Boxes {
       )) {
         LogUtil.d('Clearing Hive Boxes...');
         await Future.wait<void>(<Future<dynamic>>[
+          upBox.clear(),
           loginBox.clear(),
           userBox.clear(),
           coursesBox.clear(),
@@ -127,9 +132,10 @@ class Boxes {
 class HiveAdapterTypeIds {
   const HiveAdapterTypeIds._();
 
-  static const int login = 0;
-  static const int user = 1;
-  static const int course = 2;
-  static const int score = 3;
-  static const int webapp = 4;
+  static const int up = 0;
+  static const int login = 1;
+  static const int user = 2;
+  static const int course = 3;
+  static const int score = 4;
+  static const int webapp = 5;
 }

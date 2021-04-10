@@ -8,7 +8,7 @@ part of 'data_model.dart';
 
 class CourseModelAdapter extends TypeAdapter<CourseModel> {
   @override
-  final int typeId = 2;
+  final int typeId = 3;
 
   @override
   CourseModel read(BinaryReader reader) {
@@ -81,7 +81,7 @@ class CourseModelAdapter extends TypeAdapter<CourseModel> {
 
 class LoginModelAdapter extends TypeAdapter<LoginModel> {
   @override
-  final int typeId = 0;
+  final int typeId = 1;
 
   @override
   LoginModel read(BinaryReader reader) {
@@ -136,7 +136,7 @@ class LoginModelAdapter extends TypeAdapter<LoginModel> {
 
 class ScoreModelAdapter extends TypeAdapter<ScoreModel> {
   @override
-  final int typeId = 3;
+  final int typeId = 4;
 
   @override
   ScoreModel read(BinaryReader reader) {
@@ -183,9 +183,46 @@ class ScoreModelAdapter extends TypeAdapter<ScoreModel> {
           typeId == other.typeId;
 }
 
+class UPModelAdapter extends TypeAdapter<UPModel> {
+  @override
+  final int typeId = 0;
+
+  @override
+  UPModel read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return UPModel(
+      fields[0] as String,
+      fields[1] as String,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, UPModel obj) {
+    writer
+      ..writeByte(2)
+      ..writeByte(0)
+      ..write(obj.u)
+      ..writeByte(1)
+      ..write(obj.p);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is UPModelAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
 class UserModelAdapter extends TypeAdapter<UserModel> {
   @override
-  final int typeId = 1;
+  final int typeId = 2;
 
   @override
   UserModel read(BinaryReader reader) {
@@ -240,7 +277,7 @@ class UserModelAdapter extends TypeAdapter<UserModel> {
 
 class WebAppModelAdapter extends TypeAdapter<WebAppModel> {
   @override
-  final int typeId = 4;
+  final int typeId = 5;
 
   @override
   WebAppModel read(BinaryReader reader) {

@@ -61,8 +61,10 @@ class UserAPI {
       password: password,
       blowfish: blowfish,
     );
+    await Boxes.upBox.clear();
+    await Boxes.upBox.add(UPModel(username, password));
     try {
-      if (HttpUtil.shouldUseWebVPN && !await webVpnLogin(username, password)) {
+      if (HttpUtil.shouldUseWebVPN && !await webVpnLogin()) {
         showToast('登录失败');
         return false;
       }
@@ -158,6 +160,7 @@ class UserAPI {
       userModel = user;
       if (renewSession) {
         LogUtil.d('Session is valid: ${loginModel!.sid}');
+        return await webVpnLogin();
       }
       return true;
     } catch (e) {
@@ -191,8 +194,7 @@ class UserAPI {
     showToast('退出登录成功');
   }
 
-  /// 使用 [username] 和 [password] 登录
-  static Future<bool> webVpnLogin(String username, String password) async {
+  static Future<String?> webVpnIsLogin() async {
     try {
       final String r = await HttpUtil.fetch(
         FetchType.get,
@@ -201,6 +203,19 @@ class UserAPI {
       );
       // 解析返回内容。如果包含「退出登录」，同时不包含「登录 Login」，即为已登录。
       if (r.contains('退出登录') && !r.contains('登录 Login')) {
+        return null;
+      }
+      return r;
+    } catch (e) {
+      LogUtil.e('Error when testing WebVPN login status: $e');
+      return '';
+    }
+  }
+
+  static Future<bool> webVpnLogin() async {
+    try {
+      final String? r = await webVpnIsLogin();
+      if (r == null) {
         return true;
       }
       // 获取 DOM 中 <input name="authenticity_token" ... /> 的值。
@@ -212,14 +227,15 @@ class UserAPI {
       // 将 token 保存，而后可以用 token 继续请求。
       await SettingsUtil.setWebVpnToken(token);
 
+      final UPModel upModel = Boxes.upBox.getAt(0)!;
       final Response<String> loginRes = await HttpUtil.getResponse(
         FetchType.post,
         url: API.webVpnLogin,
         queryParameters: <String, String>{
           'utf8': '✓',
           'authenticity_token': token,
-          'user[login]': username,
-          'user[password]': password,
+          'user[login]': upModel.u,
+          'user[password]': upModel.p,
           'user[dymatice_code]': 'unknown',
           'user[otp_with_capcha]': 'false',
           'commit': '登录 Login',
@@ -280,10 +296,6 @@ class UserAPI {
       Cookie('SERVERID', 'Server1'),
     ];
     await Future.wait(<Future<void>>[
-      HttpUtil.updateDomainsCookies(
-        <String>['http://webvpn.jmu.edu.cn/'],
-        cookies,
-      ),
       HttpUtil.updateDomainsCookies(
         <String>['https://webvpn.jmu.edu.cn/'],
         cookies,

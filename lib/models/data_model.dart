@@ -28,6 +28,8 @@ part 'login_model.dart';
 
 part 'score_model.dart';
 
+part 'up_model.dart';
+
 part 'user_model.dart';
 
 part 'web_app_model.dart';
