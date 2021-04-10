@@ -47,6 +47,7 @@ class DateProvider extends ChangeNotifier {
     final DateTime? _dateInCache = Boxes.startWeekBox.get('startDate');
     if (_dateInCache != null) {
       _startDate = _dateInCache;
+      _handleCurrentWeek();
     }
     await getCurrentWeek();
   }
@@ -54,6 +55,19 @@ class DateProvider extends ChangeNotifier {
   Future<void> updateStartDate(DateTime date) async {
     _startDate = date;
     await Boxes.startWeekBox.put('startDate', date);
+  }
+
+  void _handleCurrentWeek() {
+    final int _d = _startDate!.difference(currentTime).inDays;
+    if (_difference != _d) {
+      _difference = _d;
+    }
+
+    final int _w = -((difference - 1) / 7).floor();
+    if (_currentWeek != _w) {
+      _currentWeek = _w;
+      notifyListeners();
+    }
   }
 
   Future<void> getCurrentWeek() async {
@@ -77,16 +91,7 @@ class DateProvider extends ChangeNotifier {
         }
       }
 
-      final int _d = _startDate!.difference(currentTime).inDays;
-      if (_difference != _d) {
-        _difference = _d;
-      }
-
-      final int _w = -((difference - 1) / 7).floor();
-      if (_currentWeek != _w) {
-        _currentWeek = _w;
-        notifyListeners();
-      }
+      _handleCurrentWeek();
       _fetchCurrentWeekTimer?.cancel();
     } catch (e) {
       LogUtil.e('Failed when fetching current week: $e');
