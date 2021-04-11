@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 
 import '../extensions/build_context_extension.dart';
 import '../extensions/size_extension.dart';
+export '../widgets/adaptive_layout.dart';
 export '../widgets/dialogs/confirmation_bottom_sheet.dart';
 export '../widgets/dialogs/confirmation_dialog.dart';
 export '../widgets/dismiss_wrapper.dart';
