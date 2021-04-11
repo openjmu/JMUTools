@@ -37,6 +37,7 @@ class AdaptiveLayout extends StatelessWidget {
     Key? key,
     required this.children,
     this.maxWidth = 1080,
+    this.alignment = Alignment.topCenter,
     this.typeBuilder = _defaultTypeBuilder,
     this.columnBuilder = _defaultColumnBuilder,
   }) : super(key: key);
@@ -52,6 +53,12 @@ class AdaptiveLayout extends StatelessWidget {
   /// the layout will stops expanding and fixed to [maxWidth].
   final double? maxWidth;
 
+  /// The alignment that the layout should follow.
+  ///
+  /// By default, using [Alignment.topCenter] indicates contents will always be
+  /// centered and topped while the constraints is changing.
+  final AlignmentGeometry alignment;
+
   final Map<AdaptiveType, double> typeBuilder;
 
   final Map<AdaptiveType, int> columnBuilder;
@@ -62,8 +69,7 @@ class AdaptiveLayout extends StatelessWidget {
       child: Wrap(children: children),
     );
     if (maxWidth != null) {
-      child = Container(
-        alignment: Alignment.center,
+      child = ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxWidth!),
         child: child,
       );
@@ -73,7 +79,7 @@ class AdaptiveLayout extends StatelessWidget {
         constraints: constraints,
         typeBuilder: typeBuilder,
         columnBuilder: columnBuilder,
-        child: child,
+        child: Align(alignment: alignment, child: child),
       ),
     );
   }
