@@ -38,7 +38,7 @@ class CourseAdaptiveView extends StatelessWidget {
           weightBuilder: (AdaptiveType type) =>
               type == AdaptiveType.medium ? 9 : 6,
           builder: (_) => _CardWidget(
-            title: '明日，${currentTime.mDddd}',
+            title: '明日，${(currentTime + 1.days).mDddd}',
             selector: (_, CoursesProvider p) => p.coursesTomorrow,
             itemBuilder: (CourseModel c) =>
                 _CourseItemWidget(c, isToday: false),

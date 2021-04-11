@@ -30,6 +30,6 @@ Color get currentThemeColor => currentTheme.accentColor;
 
 bool get currentIsDark => currentTheme.brightness == Brightness.dark;
 
-DateTime get currentTime => DateTime.now().add(const Duration(days: 2));
+DateTime get currentTime => DateTime.now();
 
 int get currentTimeStamp => currentTime.millisecondsSinceEpoch;
