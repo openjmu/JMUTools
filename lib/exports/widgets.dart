@@ -16,6 +16,8 @@ export '../widgets/dismiss_wrapper.dart';
 export '../widgets/fixed_appbar.dart';
 export '../widgets/gaps.dart';
 export '../widgets/in_app_webview.dart';
+export '../widgets/loading_icon.dart';
+export '../widgets/no_splash.dart';
 export '../widgets/tapper.dart';
 export '../widgets/theme_text_button.dart';
 export '../widgets/value_listenable_builders.dart';

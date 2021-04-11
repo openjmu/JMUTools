@@ -122,19 +122,6 @@ class CoursesProvider extends ChangeNotifier {
     _remark = _courseRemarkBox.get(UserAPI.user.uid);
     _hasCourses = _courses != null;
     if (_hasCourses) {
-      for (final Map<dynamic, dynamic> _map in _courses!.values) {
-        final Map<int, List<dynamic>> map = _map.cast<int, List<dynamic>>();
-        final List<List<dynamic>> lists =
-            map.values.toList().cast<List<dynamic>>();
-        for (final List<dynamic> list in lists) {
-          final List<CourseModel> courses = list.cast<CourseModel>();
-          for (final CourseModel course in courses) {
-            if (course.color == null) {
-              course.uniqueColor(CourseAPI.randomCourseColor());
-            }
-          }
-        }
-      }
       firstLoaded = true;
     } else {
       _courses = resetCourses();

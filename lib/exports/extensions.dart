@@ -6,6 +6,7 @@ export '../extensions/brightness_extension.dart';
 export '../extensions/build_context_extension.dart';
 export '../extensions/color_extension.dart';
 export '../extensions/date_time_extension.dart';
+export '../extensions/num_extension.dart';
 export '../extensions/size_extension.dart';
 export '../extensions/state_extension.dart';
 export '../extensions/string_extension.dart';

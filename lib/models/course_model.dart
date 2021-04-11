@@ -32,7 +32,9 @@ class CourseModel extends DataModel {
     this.oddEven,
     required this.rawDay,
     required this.rawTime,
-  });
+  }) {
+    initializeColor();
+  }
 
   factory CourseModel.fromJson(
     Map<String, dynamic> json, {
@@ -86,7 +88,7 @@ class CourseModel extends DataModel {
           json[isCustom ? 'courseDaytime' : 'couDayTime'].toString().toInt(),
       rawTime: json[isCustom ? 'courseTime' : 'coudeTime'].toString(),
     );
-    _c.uniqueColor(CourseAPI.randomCourseColor());
+    _c.initializeColor();
     return _c;
   }
 
@@ -118,7 +120,7 @@ class CourseModel extends DataModel {
   final int rawDay;
   @HiveField(13)
   final String rawTime;
-  Color? color;
+  late final Color color;
 
   @override
   Map<String, dynamic> toJson() {
@@ -215,29 +217,33 @@ class CourseModel extends DataModel {
     return courseTime;
   }
 
+  void initializeColor() {
+    color = uniqueColor(CourseAPI.randomCourseColor());
+  }
+
   /// 生成唯一的课程颜色
-  void uniqueColor(Color color) {
+  Color uniqueColor(Color color) {
     final CourseColor? _courseColor =
         CourseAPI.coursesUniqueColor.firstWhereOrNull(
       (CourseColor color) => color.name == name,
     );
     if (_courseColor != null) {
-      color = _courseColor.color;
-    } else {
-      final List<CourseColor> courses = CourseAPI.coursesUniqueColor
-          .where((CourseColor c) => c.color == color)
-          .toList();
+      return _courseColor.color;
+    }
+    final List<CourseColor> courses = CourseAPI.coursesUniqueColor
+        .where((CourseColor c) => c.color == color)
+        .toList();
 
-      if (courses.isNotEmpty) {
-        uniqueColor(CourseAPI.randomCourseColor());
-      } else {
-        color = color;
-        CourseAPI.coursesUniqueColor.add(
-          CourseColor(name: name, color: color),
-        );
-      }
+    if (courses.isNotEmpty) {
+      return uniqueColor(CourseAPI.randomCourseColor());
+    } else {
+      CourseAPI.coursesUniqueColor.add(CourseColor(name: name, color: color));
+      return color;
     }
   }
+
+  /// 课程是否有效
+  bool get isValid => name.isNotEmpty && name != 'null';
 
   /// 是否需要使用原始数据进行编辑
   ///
@@ -265,7 +271,7 @@ class CourseModel extends DataModel {
   /// 是否准备上课
   bool get inReadyTime {
     final double timeNow = _timeToDouble(TimeOfDay.now());
-    final List<TimeOfDay> times = _courseTime[time]!;
+    final List<TimeOfDay> times = coursesTime[time]!;
     final double start = _timeToDouble(times[0]);
     return start - timeNow <= 0.5 && start - timeNow > 0;
   }
@@ -273,17 +279,17 @@ class CourseModel extends DataModel {
   /// 是否正在上课
   bool get inCurrentTime {
     final double timeNow = _timeToDouble(TimeOfDay.now()) - (1 / 60);
-    final double start = _timeToDouble(_courseTime[time]![0]);
-    double end = _timeToDouble(_courseTime[time + 1]![1]) - (1 / 60);
+    final double start = _timeToDouble(coursesTime[time]![0]);
+    double end = _timeToDouble(coursesTime[time + 1]![1]) - (1 / 60);
     if (isEleven) {
-      end = _timeToDouble(_courseTime[11]![1]);
+      end = _timeToDouble(coursesTime[11]![1]);
     }
     return start <= timeNow && end >= timeNow;
   }
 
   /// 是否已经下课
   bool get isOver {
-    final TimeOfDay overTime = _courseTime[time + 1]![1];
+    final TimeOfDay overTime = coursesTime[time + 1]![1];
     return TimeOfDay.now().isAfter(overTime);
   }
 
@@ -337,11 +343,11 @@ class CourseColor {
 }
 
 String _getCourseStartTime(int courseIndex) {
-  return _getCourseTimeString(_courseTime[courseIndex]![0]);
+  return _getCourseTimeString(coursesTime[courseIndex]![0]);
 }
 
 String _getCourseEndTime(int courseIndex) {
-  return _getCourseTimeString(_courseTime[courseIndex]![1]);
+  return _getCourseTimeString(coursesTime[courseIndex]![1]);
 }
 
 String _getCourseTimeString(TimeOfDay time) {
@@ -349,37 +355,5 @@ String _getCourseTimeString(TimeOfDay time) {
   final String minute = '${time.minute < 10 ? '0' : ''}${time.minute}';
   return '$hour:$minute';
 }
-
-Map<int, List<TimeOfDay>> _courseTime = <int, List<TimeOfDay>>{
-  1: <TimeOfDay>[_time(08, 00), _time(08, 45)],
-  2: <TimeOfDay>[_time(08, 50), _time(09, 35)],
-  3: <TimeOfDay>[_time(10, 05), _time(10, 50)],
-  4: <TimeOfDay>[_time(10, 55), _time(11, 40)],
-  5: <TimeOfDay>[_time(14, 00), _time(14, 45)],
-  6: <TimeOfDay>[_time(14, 50), _time(15, 35)],
-  7: <TimeOfDay>[_time(15, 55), _time(16, 40)],
-  8: <TimeOfDay>[_time(16, 45), _time(17, 30)],
-  9: <TimeOfDay>[_time(19, 00), _time(19, 45)],
-  10: <TimeOfDay>[_time(19, 50), _time(20, 35)],
-  11: <TimeOfDay>[_time(20, 40), _time(21, 25)],
-  12: <TimeOfDay>[_time(21, 30), _time(22, 15)],
-};
-
-Map<String, String> _courseTimeChinese = <String, String>{
-  '1': '一二节',
-  '12': '一二节',
-  '3': '三四节',
-  '34': '三四节',
-  '5': '五六节',
-  '56': '五六节',
-  '7': '七八节',
-  '78': '七八节',
-  '9': '九十节',
-  '90': '九十节',
-  '11': '十一节',
-  '911': '九十十一节',
-};
-
-TimeOfDay _time(int hour, int minute) => TimeOfDay(hour: hour, minute: minute);
 
 double _timeToDouble(TimeOfDay time) => time.hour + time.minute / 60.0;

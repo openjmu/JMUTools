@@ -6,7 +6,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:jmu_tools/exports/export.dart';
-import 'package:jmu_tools/pages/courses/adaptive_view.dart';
+
+import 'courses/adaptive_view.dart';
+import 'courses/grid_view.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key, this.isFromLogin = false}) : super(key: key);
@@ -73,7 +75,10 @@ class _MainPageState extends State<MainPage> {
                         ),
                       ),
                       const Spacer(),
-                      ThemeTextButton(text: '退出登录', onPressed: UserAPI.logout),
+                      const ThemeTextButton(
+                        text: '退出登录',
+                        onPressed: UserAPI.logout,
+                      ),
                     ],
                   ),
                 ],
@@ -82,7 +87,8 @@ class _MainPageState extends State<MainPage> {
             Expanded(
               child: Padding(
                 padding: EdgeInsets.symmetric(horizontal: 8.w),
-                child: CourseAdaptiveView(),
+                child: const CourseAdaptiveView(),
+                // child: const CourseGridView(),
               ),
             ),
           ],

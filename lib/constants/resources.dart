@@ -16,6 +16,9 @@ class R {
   static const String ASSETS_ICONS_CLEAR_INPUT_SVG =
       'assets/icons/clear_input.svg';
 
+  static const String ASSETS_ICONS_LOADING_ICON_SVG =
+      'assets/icons/loading_icon.svg';
+
   static const String ASSETS_ICONS_MORE_SVG = 'assets/icons/more.svg';
 
   static const String ASSETS_ICONS_NOT_OBSCURE_SVG =
@@ -23,8 +26,14 @@ class R {
 
   static const String ASSETS_ICONS_OBSCURE_SVG = 'assets/icons/obscure.svg';
 
+  static const String ASSETS_ICONS_ROUNDED_ARROW_SVG =
+      'assets/icons/rounded_arrow.svg';
+
   static const String ASSETS_OPENJMU_LOGO_TEXT_SVG =
       'assets/openjmu_logo_text.svg';
+
+  static const String ASSETS_PLACEHOLDERS_COURSE_NOT_READY_SVG =
+      'assets/placeholders/course_not_ready.svg';
 
   static const String ASSETS_PLACEHOLDERS_NO_NETWORK_SVG =
       'assets/placeholders/no_network.svg';

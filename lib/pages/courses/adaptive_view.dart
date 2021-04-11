@@ -11,7 +11,20 @@ class CourseAdaptiveView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AdaptiveLayout(
+      maxWidth: 1080.w,
       children: <Widget>[
+        Selector<CoursesProvider, String?>(
+          selector: (_, CoursesProvider p) => p.remark,
+          builder: (_, String? remark, __) {
+            if (remark.isNotNullOrEmpty) {
+              return AdaptiveChildWidget(
+                weightBuilder: (_) => 12,
+                builder: (_) => Text(remark!),
+              );
+            }
+            return const SizedBox.shrink();
+          },
+        ),
         AdaptiveChildWidget(
           weightBuilder: (AdaptiveType type) =>
               type == AdaptiveType.medium ? 9 : 6,
