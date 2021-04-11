@@ -258,7 +258,7 @@ class CourseModel extends DataModel {
     }
     _content += _getCourseStartTime(time);
     _content += ' - ';
-    _content += _getCourseEndTime(time);
+    _content += _getCourseEndTime(time + 1);
     return _content;
   }
 
@@ -273,9 +273,8 @@ class CourseModel extends DataModel {
   /// 是否正在上课
   bool get inCurrentTime {
     final double timeNow = _timeToDouble(TimeOfDay.now()) - (1 / 60);
-    final List<TimeOfDay> times = _courseTime[time]!;
-    final double start = _timeToDouble(times[0]);
-    double end = _timeToDouble(times[1]) - (1 / 60);
+    final double start = _timeToDouble(_courseTime[time]![0]);
+    double end = _timeToDouble(_courseTime[time + 1]![1]) - (1 / 60);
     if (isEleven) {
       end = _timeToDouble(_courseTime[11]![1]);
     }
