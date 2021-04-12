@@ -88,7 +88,6 @@ class CourseModel extends DataModel {
           json[isCustom ? 'courseDaytime' : 'couDayTime'].toString().toInt(),
       rawTime: json[isCustom ? 'courseTime' : 'coudeTime'].toString(),
     );
-    _c.initializeColor();
     return _c;
   }
 
