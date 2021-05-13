@@ -64,9 +64,10 @@ class UserAPI {
     await Boxes.upBox.clear();
     await Boxes.upBox.add(UPModel(username, password));
     try {
-      if (HttpUtil.shouldUseWebVPN && !await webVpnLogin()) {
-        showToast('登录失败');
-        return false;
+      final String? webVpnFailedReason = await webVpnLogin();
+      if (webVpnFailedReason != null) {
+        showToast('校内网络通道连接失败 (0 WV $webVpnFailedReason)');
+        HttpUtil.shouldUseWebVPN = false;
       }
       final LoginModel loginData = await HttpUtil.fetchModel(
         FetchType.post,
@@ -160,7 +161,8 @@ class UserAPI {
       userModel = user;
       if (renewSession) {
         LogUtil.d('Session is valid: ${loginModel!.sid}');
-        return await webVpnLogin();
+        await webVpnLogin();
+        return true;
       }
       return true;
     } catch (e) {
@@ -212,11 +214,12 @@ class UserAPI {
     }
   }
 
-  static Future<bool> webVpnLogin() async {
+  /// Return `null` if succeed, and failed reason if failed.
+  static Future<String?> webVpnLogin() async {
     try {
       final String? r = await webVpnIsLogin();
       if (r == null) {
-        return true;
+        return null;
       }
       // 获取 DOM 中 <input name="authenticity_token" ... /> 的值。
       final dom.Document document = parse(r);
@@ -245,24 +248,24 @@ class UserAPI {
       );
       // 直接解析返回内容中的头部内容。
       await _setVPNsValues(loginRes);
-      return true;
+      return null;
     } on DioError catch (dioError) {
       // 当状态码为 302 时，代表登录成功，此时继续调用刷新接口，获取 session。
       if (dioError.response?.statusCode == HttpStatus.found) {
-        return webVpnUpdate();
+        return await webVpnUpdate();
       } else {
         LogUtil.e('Failed to login WebVPN: $dioError');
         await _clearVPNsValues();
-        return false;
+        return dioError.toString();
       }
     } catch (e) {
       LogUtil.e('Error when login to WebVPN: $e');
       await _clearVPNsValues();
-      return false;
+      return e.toString();
     }
   }
 
-  static Future<bool> webVpnUpdate() async {
+  static Future<String?> webVpnUpdate() async {
     try {
       final Response<String> res = await HttpUtil.getResponse(
         FetchType.get,
@@ -271,20 +274,20 @@ class UserAPI {
         useTokenDio: true,
       );
       await _setVPNsValues(res);
-      return true;
+      return null;
     } on DioError catch (dioError) {
       if (dioError.response?.statusCode == HttpStatus.found) {
         await _setVPNsValues(dioError.response!);
-        return true;
+        return null;
       } else {
         await _clearVPNsValues();
         LogUtil.e('Failed to login WebVPN: $dioError');
-        return false;
+        return dioError.toString();
       }
     } catch (e) {
       await _clearVPNsValues();
       LogUtil.e('Error when login to WebVPN: $e');
-      return false;
+      return e.toString();
     }
   }
 
